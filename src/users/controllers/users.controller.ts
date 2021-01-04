@@ -3,18 +3,20 @@ import {
   Get,
   HttpStatus,
   Param,
-  Req,
   Res,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
-import { Response, Request } from 'express';
+import { Response } from 'express';
 
 import { UsersService } from '../services/users.service';
 
 import { UserResponseInterface } from '../types';
 import { CommonResponseType } from '../../types';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { UpdateLastSeenInterceptor } from '../../common/update-last-seen.interceptor';
 
+@UseInterceptors(UpdateLastSeenInterceptor)
 @Controller()
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
@@ -22,7 +24,6 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @Get('user/:id')
   async getUserInfo(
-    @Req() req: Request,
     @Res() res: Response,
     @Param('id') id: string,
   ): CommonResponseType<UserResponseInterface> {

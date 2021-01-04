@@ -9,7 +9,8 @@ import {
   UserDocument,
   UserResponseInterface,
 } from '../types';
-import { assoc, compose, identical, identity, ifElse, omit } from 'ramda';
+import { assoc, compose, identity, ifElse, omit } from 'ramda';
+import { User } from '../models/user-model.schema';
 
 @Injectable()
 export class UsersService {
@@ -84,5 +85,18 @@ export class UsersService {
       .then((userData) =>
         userData ? UsersService.formatUser(userData, isVisiblePassword) : null,
       );
+  }
+
+  async updateUserLastSeenDate(
+    id: string,
+  ): Promise<UserResponseInterface | null> {
+    return this.UserModel.findOneAndUpdate(
+      { _id: id },
+      {
+        last_seen: new Date(),
+      },
+      { new: true },
+      () => {},
+    ).then((userData) => (userData ? UsersService.formatUser(userData) : null));
   }
 }
