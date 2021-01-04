@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { MongooseModule, MongooseModuleOptions } from '@nestjs/mongoose';
 
 import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
 
 const mongodbOptions: MongooseModuleOptions = {
   useNewUrlParser: true,
@@ -15,6 +16,7 @@ const mongodbOptions: MongooseModuleOptions = {
   imports: [
     ConfigModule.forRoot(),
     MongooseModule.forRoot(process.env.MONGO_DB_URL, mongodbOptions),
+    AuthModule,
     UsersModule,
   ],
   providers: [],

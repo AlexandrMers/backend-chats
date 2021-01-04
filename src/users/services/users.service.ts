@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+
 import { ModelName } from '../../types';
 import { CreateUserDto } from '../controllers/create-user.dto';
 import { UserDocument, UserResponseInterface } from '../types';
@@ -25,9 +25,18 @@ export class UsersService {
     };
   }
 
+  static validateUserPassword = ({
+    password,
+    confirmedPassword,
+  }: CreateUserDto) => password === confirmedPassword;
+
   create = async (
     userData: CreateUserDto,
-  ): Promise<UserResponseInterface | null> => {
+  ): Promise<UserResponseInterface | Error | null> => {
+    if (!UsersService.validateUserPassword(userData)) {
+      throw new Error('Пароли не совпадают!');
+    }
+
     const encryptedPassword = await bcrypt.hash(userData.password, 10);
 
     const user = new this.UserModel({

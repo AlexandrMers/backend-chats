@@ -1,72 +1,14 @@
-import {
-  Body,
-  Controller,
-  Get,
-  HttpStatus,
-  Param,
-  Post,
-  Res,
-} from '@nestjs/common';
+import { Controller, Get, HttpStatus, Param, Res } from '@nestjs/common';
 import { UsersService } from '../services/users.service';
 import { Response } from 'express';
-import { UsersHelpersService } from '../services/users-helpers.service';
-import { CreateUserDto } from './create-user.dto';
 import { UserResponseInterface } from '../types';
+import { CommonResponseType } from '../../types';
 
-enum Statuses {
-  ERROR = 'error',
-  SUCCESS = 'success',
-}
-
-type CommonResponseType<SuccessType> = Promise<
-  SuccessResponseType<SuccessType> | ErrorResponseType
->;
-
-type SuccessResponseType<T> = Response<{
-  status: Statuses.SUCCESS;
-  data: T;
-}>;
-
-type ErrorResponseType = Response<{
-  status: Statuses.ERROR;
-  message: string;
-}>;
-
-@Controller('users')
+@Controller()
 export class UsersController {
-  constructor(
-    private readonly usersService: UsersService,
-    private readonly userHelpers: UsersHelpersService,
-  ) {}
+  constructor(private readonly usersService: UsersService) {}
 
-  @Post('signup')
-  async signUp(
-    @Res() res: Response,
-    @Body() createUserDto: CreateUserDto,
-  ): CommonResponseType<UserResponseInterface> {
-    if (!this.userHelpers.validateUserPassword(createUserDto)) {
-      return res.status(HttpStatus.FORBIDDEN).json({
-        status: Statuses.ERROR,
-        message: 'Пароли не совпадают',
-      });
-    }
-
-    try {
-      const createdUser = await this.usersService.create(createUserDto);
-
-      return res.status(HttpStatus.CREATED).json({
-        status: Statuses.SUCCESS,
-        data: createdUser,
-      });
-    } catch (error) {
-      return res.status(HttpStatus.FORBIDDEN).json({
-        status: Statuses.ERROR,
-        message: error.toString(),
-      });
-    }
-  }
-
-  @Get(':id')
+  @Get('user/:id')
   async getUserInfo(
     @Res() res: Response,
     @Param('id') id: string,
