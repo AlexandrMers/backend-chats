@@ -7,6 +7,7 @@ export interface UserResponseInterface {
   lastSeen: UserDocument['last_seen'];
   fullName: UserDocument['fullName'];
   email: UserDocument['email'];
+  password?: UserDocument['password'];
 }
 
 export type UserDocument = User & Document;

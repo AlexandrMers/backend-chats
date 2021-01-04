@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import * as bcrypt from 'bcrypt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
 import { ModelName } from '../../types';
 import { CreateUserDto } from '../controllers/create-user.dto';
 import { UserDocument, UserResponseInterface } from '../types';
+import { assoc, compose, identical, identity, ifElse, omit } from 'ramda';
 
 @Injectable()
 export class UsersService {
@@ -14,35 +14,46 @@ export class UsersService {
     private readonly UserModel: Model<UserDocument>,
   ) {}
 
-  static formatUser(userDoc: UserDocument): UserResponseInterface {
-    const userDocJson = userDoc.toJSON();
-    return {
-      id: userDocJson?._id,
-      confirmed: userDocJson?.confirmed,
-      lastSeen: userDocJson?.last_seen,
-      fullName: userDocJson?.fullName,
-      email: userDocJson?.email,
-    };
+  static excludePasswordFromUser(
+    user: UserResponseInterface,
+  ): Omit<UserResponseInterface, 'password'> {
+    return omit(['password'])(user);
   }
 
-  static validateUserPassword = ({
+  static formatUser(
+    userDoc: UserDocument,
+    visiblePassword?: boolean,
+  ): UserResponseInterface {
+    const userDocJson = userDoc.toJSON();
+
+    return compose(
+      ifElse(
+        () => visiblePassword,
+        assoc('password', userDocJson.password),
+        identity,
+      ),
+      () => ({
+        id: userDocJson?._id,
+        confirmed: userDocJson?.confirmed,
+        lastSeen: userDocJson?.last_seen,
+        fullName: userDocJson?.fullName,
+        email: userDocJson?.email,
+      }),
+    )();
+  }
+
+  static validateEqualPasswords = ({
     password,
     confirmedPassword,
   }: CreateUserDto) => password === confirmedPassword;
 
   create = async (
-    userData: CreateUserDto,
+    userData: Omit<CreateUserDto, 'confirmedPassword'>,
   ): Promise<UserResponseInterface | Error | null> => {
-    if (!UsersService.validateUserPassword(userData)) {
-      throw new Error('Пароли не совпадают!');
-    }
-
-    const encryptedPassword = await bcrypt.hash(userData.password, 10);
-
     const user = new this.UserModel({
       email: userData.email,
       fullName: userData.fullName,
-      password: encryptedPassword,
+      password: userData.password,
     });
 
     return user
@@ -52,9 +63,22 @@ export class UsersService {
       );
   };
 
-  async getUserInfo(id: string): Promise<UserResponseInterface | null> {
+  async getUserById(id: string): Promise<UserResponseInterface | null> {
     return this.UserModel.findById(id).then((userData) =>
       userData ? UsersService.formatUser(userData) : null,
     );
+  }
+
+  async getUserByEmail(
+    email: string,
+    isVisiblePassword?: boolean,
+  ): Promise<UserResponseInterface | null> {
+    return this.UserModel.findOne({
+      email,
+    })
+      .select(isVisiblePassword ? '+password' : '')
+      .then((userData) =>
+        userData ? UsersService.formatUser(userData, isVisiblePassword) : null,
+      );
   }
 }

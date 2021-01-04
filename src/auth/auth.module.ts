@@ -10,6 +10,7 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 
 import { ModelName } from '../types';
+import { BcryptService } from './bcrypt.service';
 
 @Module({
   imports: [
@@ -23,7 +24,7 @@ import { ModelName } from '../types';
       },
     ]),
   ],
-  providers: [UsersService, AuthService],
+  providers: [UsersService, AuthService, BcryptService],
   controllers: [AuthController],
 })
 export class AuthModule {}

@@ -1,6 +1,8 @@
 import { Controller, Get, HttpStatus, Param, Res } from '@nestjs/common';
-import { UsersService } from '../services/users.service';
 import { Response } from 'express';
+
+import { UsersService } from '../services/users.service';
+
 import { UserResponseInterface } from '../types';
 import { CommonResponseType } from '../../types';
 
@@ -14,7 +16,7 @@ export class UsersController {
     @Param('id') id: string,
   ): CommonResponseType<UserResponseInterface> {
     try {
-      const user = await this.usersService.getUserInfo(id);
+      const user = await this.usersService.getUserById(id);
 
       if (!user) {
         return res.status(HttpStatus.NOT_FOUND).json({
