@@ -1,17 +1,28 @@
-import { Controller, Get, HttpStatus, Param, Res } from '@nestjs/common';
-import { Response } from 'express';
+import {
+  Controller,
+  Get,
+  HttpStatus,
+  Param,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
+import { Response, Request } from 'express';
 
 import { UsersService } from '../services/users.service';
 
 import { UserResponseInterface } from '../types';
 import { CommonResponseType } from '../../types';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 
 @Controller()
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @UseGuards(JwtAuthGuard)
   @Get('user/:id')
   async getUserInfo(
+    @Req() req: Request,
     @Res() res: Response,
     @Param('id') id: string,
   ): CommonResponseType<UserResponseInterface> {

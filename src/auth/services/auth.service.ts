@@ -2,11 +2,11 @@ import * as bcrypt from 'bcrypt';
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
-import { UsersService } from '../users/services/users.service';
+import { UsersService } from '../../users/services/users.service';
 
-import { CreateUserDto } from '../users/controllers/create-user.dto';
+import { CreateUserDto } from '../../users/controllers/create-user.dto';
 import { BcryptService } from './bcrypt.service';
-import { LoginUserDto } from '../users/controllers/login-user.dto';
+import { LoginUserDto } from '../../users/controllers/login-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -15,30 +15,33 @@ export class AuthService {
     private readonly userService: UsersService,
     private readonly bcryptService: BcryptService,
   ) {}
-  async login(loginData: LoginUserDto) {
+  async login(userData: LoginUserDto) {
+    const candidate = await this.validateUser(userData);
+
+    return this.jwtService.sign(candidate, {
+      secret: process.env.JWT_KEY,
+      expiresIn: process.env.EXPIRES_IN_JWT,
+    });
+  }
+
+  async validateUser(userData: LoginUserDto) {
     const candidate = await this.userService.getUserByEmail(
-      loginData.email,
+      userData.email,
       true,
     );
 
     if (candidate && candidate.password) {
       const passwordResult = await this.bcryptService.compare(
-        loginData.password,
+        userData.password,
         candidate.password,
       );
 
       if (passwordResult) {
-        const userInfo = UsersService.excludePasswordFromUser(candidate);
-
-        return this.jwtService.sign(userInfo, {
-          secret: process.env.JWT_KEY,
-          expiresIn: process.env.EXPIRES_IN_JWT,
-        });
+        return UsersService.excludePasswordFromUser(candidate);
       }
-
-      throw Error('Email или пароль указаны неверно.');
+      throw new Error('Email или пароль указаны неверно.');
     }
-    throw Error('Пользователь с таким email не зарегистрирован в системе.');
+    throw new Error('Пользователь с таким email не зарегистрирован в системе.');
   }
 
   async register(userData: CreateUserDto) {

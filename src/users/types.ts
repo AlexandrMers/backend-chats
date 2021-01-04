@@ -11,3 +11,5 @@ export interface UserResponseInterface {
 }
 
 export type UserDocument = User & Document;
+
+export type AuthorizedUserInterface = Omit<UserResponseInterface, 'password'>;

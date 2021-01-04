@@ -1,11 +1,18 @@
-import { Body, Controller, HttpStatus, Post, Res } from '@nestjs/common';
-import { Response } from 'express';
-import { CreateUserDto } from '../users/controllers/create-user.dto';
-import { UserResponseInterface } from '../users/types';
-import { CommonResponseType, Statuses } from '../types';
+import { Body, Controller, HttpStatus, Post, Req, Res } from '@nestjs/common';
+import { Response, Request } from 'express';
+
 import { UsersService } from '../users/services/users.service';
-import { AuthService } from './auth.service';
+import { AuthService } from './services/auth.service';
+
+import { AuthorizedUserInterface, UserResponseInterface } from '../users/types';
+import { CommonResponseType, Statuses } from '../types';
+
+import { CreateUserDto } from '../users/controllers/create-user.dto';
 import { LoginUserDto } from '../users/controllers/login-user.dto';
+
+interface AuthorizedRequestInterface extends Request {
+  user: AuthorizedUserInterface;
+}
 
 @Controller()
 export class AuthController {
@@ -14,15 +21,19 @@ export class AuthController {
     private readonly authService: AuthService,
   ) {}
 
-  @Post('signin')
-  async signIn(@Res() res: Response, @Body() loginUserDto: LoginUserDto) {
+  @Post('login')
+  async login(
+    @Req() req: AuthorizedRequestInterface,
+    @Res() res: Response,
+    @Body() loginData: LoginUserDto,
+  ) {
     try {
-      const loginData = await this.authService.login(loginUserDto);
+      const token = await this.authService.login(loginData);
 
       return res.status(HttpStatus.OK).json({
         status: Statuses.SUCCESS,
         data: {
-          token: loginData,
+          token: token,
         },
       });
     } catch (error) {
@@ -33,8 +44,8 @@ export class AuthController {
     }
   }
 
-  @Post('signup')
-  async signUp(
+  @Post('register')
+  async register(
     @Res() res: Response,
     @Body() createUserDto: CreateUserDto,
   ): CommonResponseType<UserResponseInterface> {

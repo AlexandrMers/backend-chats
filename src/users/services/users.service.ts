@@ -4,7 +4,11 @@ import { Model } from 'mongoose';
 
 import { ModelName } from '../../types';
 import { CreateUserDto } from '../controllers/create-user.dto';
-import { UserDocument, UserResponseInterface } from '../types';
+import {
+  AuthorizedUserInterface,
+  UserDocument,
+  UserResponseInterface,
+} from '../types';
 import { assoc, compose, identical, identity, ifElse, omit } from 'ramda';
 
 @Injectable()
@@ -16,7 +20,7 @@ export class UsersService {
 
   static excludePasswordFromUser(
     user: UserResponseInterface,
-  ): Omit<UserResponseInterface, 'password'> {
+  ): AuthorizedUserInterface {
     return omit(['password'])(user);
   }
 
