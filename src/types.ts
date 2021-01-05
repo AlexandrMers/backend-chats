@@ -2,6 +2,8 @@ import { Response } from 'express';
 
 export enum ModelName {
   USER = 'User',
+  CHAT = 'Chat',
+  MESSAGE = 'Message',
 }
 
 export enum Statuses {

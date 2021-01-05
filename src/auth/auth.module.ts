@@ -18,7 +18,6 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 
 @Module({
   imports: [
-    UsersModule,
     PassportModule,
     JwtModule.register({
       secret: process.env.JWT_KEY,
@@ -33,6 +32,6 @@ import { JwtStrategy } from './strategies/jwt.strategy';
   ],
   providers: [UsersService, AuthService, BcryptService, JwtStrategy],
   controllers: [AuthController],
-  exports: [AuthService],
+  exports: [],
 })
 export class AuthModule {}
