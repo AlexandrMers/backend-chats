@@ -5,6 +5,7 @@ import { MongooseModule, MongooseModuleOptions } from '@nestjs/mongoose';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ChatsModule } from './chats/chats.module';
+import { MessagesModule } from './chats/messages.module';
 
 const mongodbOptions: MongooseModuleOptions = {
   useNewUrlParser: true,
@@ -20,6 +21,7 @@ const mongodbOptions: MongooseModuleOptions = {
     AuthModule,
     UsersModule,
     ChatsModule,
+    MessagesModule,
   ],
   providers: [],
   controllers: [],

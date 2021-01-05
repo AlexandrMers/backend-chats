@@ -1,46 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { UserDocument } from '../users/types';
+import { UserDocument, UserResponseInterface } from '../../users/types';
 import { InjectModel } from '@nestjs/mongoose';
-import { ModelName } from '../types';
+import { ModelName } from '../../types';
 import { Model } from 'mongoose';
-import { ChatDocument } from './types';
-
-export interface ShortUserInterface {
-  fullName: UserDocument['fullName'];
-  id: UserDocument['_id'];
-}
-
-interface ChatResponseInterface {
-  id: ChatDocument['_id'];
-  author: ShortUserInterface;
-  partner: ShortUserInterface;
-  lastMessage: any;
-}
-
-export const formatChatResponse = (
-  chat: ChatDocument,
-): ChatResponseInterface => {
-  const chatJson = chat?.toJSON();
-
-  return {
-    id: chatJson?._id,
-    author: {
-      fullName: chatJson?.author.fullName,
-      id: chatJson?.author._id,
-    },
-    partner: {
-      fullName: chatJson?.partner.fullName,
-      id: chatJson?.partner._id,
-    },
-    lastMessage: null,
-  };
-};
+import { ChatDocument, ChatResponseInterface, MessageType } from '../types';
+import { formatChatResponse } from '../helpers/formatChatResponse';
+import { CommonService } from './common.service';
 
 @Injectable()
 export class ChatsService {
   constructor(
     @InjectModel(ModelName.CHAT)
     private readonly ChatModel: Model<ChatDocument>,
+    private commonService: CommonService,
   ) {}
 
   validateChat = async (
@@ -62,11 +34,11 @@ export class ChatsService {
   };
 
   create = async (
-    authorId: UserDocument['_id'],
+    author: UserResponseInterface,
     partnerId: UserDocument['_id'],
   ) => {
     const existedChatWithAuthorCurrentUser = await this.validateChat(
-      authorId,
+      author.id,
       partnerId,
     );
 
@@ -75,23 +47,27 @@ export class ChatsService {
     }
 
     try {
-      return new this.ChatModel({
-        author: authorId,
+      const createdChat = await new this.ChatModel({
+        author: author.id,
         partner: partnerId,
       }).save();
 
-      // const createdSystemMessage = await this._messageService.createMessage({
-      //   chatId: createdChat._id,
-      //   type: TypeMessageEnum.SYSTEM,
-      //   text: `Пользователь ${author.fullName} создал чат`,
-      //   authorId: author._id,
-      // });
-      //
-      // return this.updateLastMessage(
-      //   createdChat._id, createdSystemMessage.id,
-      // );
+      // создание нового сообщения - метод из сервиса сообщений
+      await this.commonService.createMessage({
+        chatId: createdChat._id,
+        type: MessageType.SYSTEM,
+        text: `Пользователь ${author.fullName} создал чат`,
+        authorId: author.id,
+      });
+
+      // Возвращаю чат с обновленным сообщением
+      return await this.ChatModel.findOne({
+        _id: createdChat._id,
+      })
+        .populate('author partner')
+        .then((chat) => (chat ? formatChatResponse(chat) : null));
     } catch (error) {
-      throw Error(error);
+      throw error;
     }
   };
 

@@ -3,8 +3,8 @@ import { SchemaTypes } from 'mongoose';
 
 import { ModelName } from '../../types';
 import { UserDocument } from '../../users/types';
-import { MessageType } from '../types';
-import { ChatDocument } from '../../chats/types';
+
+import { ChatDocument, MessageType } from '../types';
 
 @Schema({
   timestamps: true,
@@ -42,6 +42,11 @@ export class Message {
     ref: ModelName.CHAT,
   })
   chat: ChatDocument['_id'];
+
+  @Prop({
+    type: SchemaTypes.Date,
+  })
+  createdAt: Date;
 }
 
 export const MessageModel = SchemaFactory.createForClass(Message);

@@ -3,6 +3,7 @@ import { SchemaTypes } from 'mongoose';
 
 import { ModelName } from '../../types';
 import { UserDocument } from '../../users/types';
+import { MessageDocument } from '../types';
 
 @Schema({
   timestamps: true,
@@ -24,7 +25,7 @@ export class Chat {
     type: SchemaTypes.ObjectId,
     ref: ModelName.MESSAGE,
   })
-  lastMessage: any;
+  lastMessage: MessageDocument['_id'];
 }
 
 export const ChatModel = SchemaFactory.createForClass(Chat);

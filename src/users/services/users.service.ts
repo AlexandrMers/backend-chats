@@ -3,14 +3,13 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
 import { ModelName } from '../../types';
-import { CreateUserDto } from '../controllers/create-user.dto';
+import { CreateUserDto } from '../dto/create-user.dto';
 import {
   AuthorizedUserInterface,
   UserDocument,
   UserResponseInterface,
 } from '../types';
 import { assoc, compose, identity, ifElse, omit } from 'ramda';
-import { User } from '../models/user-model.schema';
 
 @Injectable()
 export class UsersService {

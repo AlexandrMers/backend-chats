@@ -8,13 +8,16 @@ import {
   Req,
   Res,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { ChatsService } from './chats.service';
-import { UserDocument, UserResponseInterface } from '../users/types';
-import { Statuses } from '../types';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { ChatsService } from '../services/chats.service';
+import { UserDocument, UserResponseInterface } from '../../users/types';
+import { Statuses } from '../../types';
+import { UpdateLastSeenInterceptor } from '../../common/update-last-seen.interceptor';
 
+@UseInterceptors(UpdateLastSeenInterceptor)
 @Controller('chats')
 export class ChatsController {
   constructor(private readonly chatService: ChatsService) {}
@@ -27,7 +30,7 @@ export class ChatsController {
     @Body('partnerId') partnerId: UserDocument['_id'],
   ) {
     try {
-      const createdChat = await this.chatService.create(req.user.id, partnerId);
+      const createdChat = await this.chatService.create(req.user, partnerId);
       return res.status(HttpStatus.CREATED).json({
         status: 'ok',
         data: createdChat,

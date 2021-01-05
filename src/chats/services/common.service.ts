@@ -1,0 +1,71 @@
+import { Injectable } from '@nestjs/common';
+import { Model } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
+
+import { UserDocument } from '../../users/types';
+import { ChatDocument, MessageDocument, MessageType } from '../types';
+import { ModelName } from '../../types';
+
+import { formatChatResponse } from '../helpers/formatChatResponse';
+import { formatMessageResponse } from '../helpers/formatMessageResponse';
+
+@Injectable()
+export class CommonService {
+  constructor(
+    @InjectModel(ModelName.MESSAGE)
+    private readonly MessageModel: Model<MessageDocument>,
+    @InjectModel(ModelName.CHAT)
+    private readonly ChatModel: Model<ChatDocument>,
+  ) {}
+
+  async createMessage({
+    type,
+    authorId,
+    chatId,
+    text,
+  }: {
+    authorId: UserDocument['_id'];
+    chatId: ChatDocument['_id'];
+    text: MessageDocument['text'];
+    type: MessageType;
+  }) {
+    const createdMessage = await new this.MessageModel({
+      type,
+      text,
+      author: authorId,
+      chat: chatId,
+    })
+      .save()
+      .then((data) => data.populate('author').execPopulate());
+
+    this.updateLastMessageChat(chatId, createdMessage._id);
+
+    return createdMessage ? formatMessageResponse(createdMessage) : null;
+  }
+
+  async updateLastMessageChat(
+    chatId: ChatDocument['_id'],
+    msgId: MessageDocument['_id'],
+  ) {
+    try {
+      const updatedChat = await this.ChatModel.findByIdAndUpdate(
+        chatId,
+        { lastMessage: msgId },
+        {
+          new: true,
+        },
+      )
+        .populate({
+          path: 'lastMessage',
+          populate: {
+            path: 'author',
+          },
+        })
+        .populate('author partner');
+
+      return updatedChat ? formatChatResponse(updatedChat) : null;
+    } catch (error) {
+      throw Error(error);
+    }
+  }
+}

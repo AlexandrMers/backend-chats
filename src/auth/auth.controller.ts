@@ -7,8 +7,8 @@ import { AuthService } from './services/auth.service';
 import { AuthorizedUserInterface, UserResponseInterface } from '../users/types';
 import { CommonResponseType, Statuses } from '../types';
 
-import { CreateUserDto } from '../users/controllers/create-user.dto';
-import { LoginUserDto } from '../users/controllers/login-user.dto';
+import { CreateUserDto } from '../users/dto/create-user.dto';
+import { LoginUserDto } from '../users/dto/login-user.dto';
 
 interface AuthorizedRequestInterface extends Request {
   user: AuthorizedUserInterface;
