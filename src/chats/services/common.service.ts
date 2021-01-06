@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 
 import { UserDocument } from '../../users/types';
@@ -32,8 +32,8 @@ export class CommonService {
     const createdMessage = await new this.MessageModel({
       type,
       text,
-      author: authorId,
-      chat: chatId,
+      author: Types.ObjectId(authorId),
+      chat: Types.ObjectId(chatId),
     })
       .save()
       .then((data) => data.populate('author').execPopulate());
@@ -67,5 +67,15 @@ export class CommonService {
     } catch (error) {
       throw Error(error);
     }
+  }
+
+  async validateUserInChat(
+    chatId: ChatDocument['_id'],
+    userId: UserDocument['_id'],
+  ) {
+    return this.ChatModel.findOne({
+      _id: chatId,
+      $or: [{ author: userId }, { partner: userId }],
+    });
   }
 }

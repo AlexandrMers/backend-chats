@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 
 import { CommonService } from './common.service';
@@ -51,8 +51,8 @@ export class ChatsService {
 
     try {
       const createdChat = await new this.ChatModel({
-        author: author.id,
-        partner: partnerId,
+        author: Types.ObjectId(author.id),
+        partner: Types.ObjectId(partnerId),
       }).save();
 
       // // создание нового сообщения - метод из сервиса сообщений

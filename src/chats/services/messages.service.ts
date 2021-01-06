@@ -3,6 +3,8 @@ import { MessageDocument } from '../types';
 import { InjectModel } from '@nestjs/mongoose';
 import { ModelName } from '../../types';
 import { Model } from 'mongoose';
+import { CommonService } from './common.service';
+import { clearConfigCache } from 'prettier';
 import { formatMessageResponse } from '../helpers/formatMessageResponse';
 
 @Injectable()
@@ -10,6 +12,7 @@ export class MessagesService {
   constructor(
     @InjectModel(ModelName.MESSAGE)
     private readonly MessageModel: Model<MessageDocument>,
+    private readonly commonService: CommonService,
   ) {}
   async getMessages(
     chatId: MessageDocument['_id'],
@@ -17,32 +20,20 @@ export class MessagesService {
   ) {
     if (!chatId) throw new Error('Не передан chatId');
 
-    const messages = await this.MessageModel.find()
-      .populate('chat author')
-      .where('chat', chatId)
-      .find({
-        $or: [
-          {
-            'chat.author': currentUserId,
-          },
-          {
-            'chat.partner': currentUserId,
-          },
-        ],
-      });
+    const validatedUserInChat = await this.commonService.validateUserInChat(
+      chatId,
+      currentUserId,
+    );
 
-    console.log('messages services -> ', messages);
-    // .or([
-    //   {
-    //     path: 'chat.author',
-    //     value: currentUserId,
-    //   },
-    //   {
-    //     path: 'chat.partner',
-    //     value: currentUserId,
-    //   },
-    // ]);
-    // console.log('messages -> ', messages);
-    return [];
+    if (!validatedUserInChat)
+      throw new Error('Пользователь не является участником чата');
+
+    return await this.MessageModel.find({
+      chat: chatId,
+    })
+      .populate(['author'])
+      .then((messagesData) =>
+        messagesData.length > 0 ? messagesData.map(formatMessageResponse) : [],
+      );
   }
 }

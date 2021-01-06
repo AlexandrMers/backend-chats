@@ -9,15 +9,20 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { UpdateLastSeenInterceptor } from '../../common/update-last-seen.interceptor';
-import { CreateMessageDto } from '../dto/create-message.dto';
-import { UserResponseInterface } from '../../users/types';
 import { Request, Response } from 'express';
-import { Statuses } from '../../types';
+
+import { UpdateLastSeenInterceptor } from '../../common/update-last-seen.interceptor';
+
 import { MessagesService } from '../services/messages.service';
-import { MessageType } from '../types';
 import { CommonService } from '../services/common.service';
+
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+
+import { UserResponseInterface } from '../../users/types';
+import { Statuses } from '../../types';
+import { MessageType } from '../types';
+
+import { CreateMessageDto } from '../dto/create-message.dto';
 
 @UseInterceptors(UpdateLastSeenInterceptor)
 @Controller('messages')
@@ -38,8 +43,6 @@ export class MessagesController {
         req.query.chatId,
         req.user.id,
       );
-
-      console.log('controller messages -> ', messages);
 
       res.status(HttpStatus.OK).json({
         status: Statuses.SUCCESS,
