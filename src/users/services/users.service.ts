@@ -86,9 +86,7 @@ export class UsersService {
       );
   }
 
-  async updateUserLastSeenDate(
-    id: string,
-  ): Promise<UserResponseInterface | null> {
+  async updateUserLastSeenDate(id: string): Promise<UserDocument> {
     return this.UserModel.findOneAndUpdate(
       { _id: id },
       {
@@ -96,6 +94,6 @@ export class UsersService {
       },
       { new: true },
       () => {},
-    ).then((userData) => (userData ? UsersService.formatUser(userData) : null));
+    );
   }
 }

@@ -4,8 +4,6 @@ import {
   Injectable,
   NestInterceptor,
 } from '@nestjs/common';
-import { tap } from 'rxjs/operators';
-import { Response } from 'express';
 
 import { UserResponseInterface } from '../users/types';
 import { UsersService } from '../users/services/users.service';
@@ -14,18 +12,14 @@ import { UsersService } from '../users/services/users.service';
 export class UpdateLastSeenInterceptor implements NestInterceptor {
   constructor(private readonly userService: UsersService) {}
 
-  private updateLastSeenUser() {
-    return tap((data: { req: { user: UserResponseInterface } & Response }) => {
-      const userData = data.req.user.id;
+  async intercept(context: ExecutionContext, next: CallHandler) {
+    const httpContext = context.switchToHttp();
+    const userInfo: UserResponseInterface = httpContext.getRequest().user;
 
-      if (!userData) {
-        return;
-      }
-      this.userService.updateUserLastSeenDate(userData);
-    });
-  }
+    if (userInfo) {
+      await this.userService.updateUserLastSeenDate(userInfo.id);
+    }
 
-  intercept(context: ExecutionContext, next: CallHandler) {
-    return next.handle().pipe(this.updateLastSeenUser());
+    return next.handle();
   }
 }

@@ -38,7 +38,7 @@ export class CommonService {
       .save()
       .then((data) => data.populate('author').execPopulate());
 
-    this.updateLastMessageChat(chatId, createdMessage._id);
+    await this.updateLastMessageChat(chatId, createdMessage._id);
 
     return createdMessage ? formatMessageResponse(createdMessage) : null;
   }

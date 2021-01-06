@@ -7,7 +7,7 @@ export const formatMessageResponse = (
 
   return {
     id: messageJson?._id,
-    chatId: message.chat,
+    chatId: messageJson?.chat,
     type: messageJson?.type,
     isRead: messageJson?.isRead,
     text: messageJson?.text,

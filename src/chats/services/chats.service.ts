@@ -1,11 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { UserDocument, UserResponseInterface } from '../../users/types';
-import { InjectModel } from '@nestjs/mongoose';
-import { ModelName } from '../../types';
 import { Model } from 'mongoose';
-import { ChatDocument, ChatResponseInterface, MessageType } from '../types';
-import { formatChatResponse } from '../helpers/formatChatResponse';
+import { InjectModel } from '@nestjs/mongoose';
+
 import { CommonService } from './common.service';
+
+import { formatChatResponse } from '../helpers/formatChatResponse';
+
+import { UserDocument, UserResponseInterface } from '../../users/types';
+import { ChatDocument, ChatResponseInterface, MessageType } from '../types';
+import { ModelName } from '../../types';
 
 @Injectable()
 export class ChatsService {
@@ -52,7 +55,7 @@ export class ChatsService {
         partner: partnerId,
       }).save();
 
-      // создание нового сообщения - метод из сервиса сообщений
+      // // создание нового сообщения - метод из сервиса сообщений
       await this.commonService.createMessage({
         chatId: createdChat._id,
         type: MessageType.SYSTEM,
@@ -61,11 +64,15 @@ export class ChatsService {
       });
 
       // Возвращаю чат с обновленным сообщением
-      return await this.ChatModel.findOne({
+      const updatedChat = await this.ChatModel.findOne({
         _id: createdChat._id,
       })
-        .populate('author partner')
-        .then((chat) => (chat ? formatChatResponse(chat) : null));
+        .populate('author partner lastMessage')
+        .populate({
+          path: 'lastMessage',
+          populate: 'author',
+        });
+      return updatedChat ? formatChatResponse(updatedChat) : null;
     } catch (error) {
       throw error;
     }

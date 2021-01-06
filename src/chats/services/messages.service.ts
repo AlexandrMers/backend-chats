@@ -15,17 +15,34 @@ export class MessagesService {
     chatId: MessageDocument['_id'],
     currentUserId: MessageDocument['_id'],
   ) {
-    return this.MessageModel.find()
-      .where('chat', chatId)
+    if (!chatId) throw new Error('Не передан chatId');
+
+    const messages = await this.MessageModel.find()
       .populate('chat author')
+      .where('chat', chatId)
       .find({
         $or: [
-          { 'chat.author': currentUserId },
-          { 'chat.partner': currentUserId },
+          {
+            'chat.author': currentUserId,
+          },
+          {
+            'chat.partner': currentUserId,
+          },
         ],
-      })
-      .then((messages) =>
-        messages.length ? messages.map(formatMessageResponse) : [],
-      );
+      });
+
+    console.log('messages services -> ', messages);
+    // .or([
+    //   {
+    //     path: 'chat.author',
+    //     value: currentUserId,
+    //   },
+    //   {
+    //     path: 'chat.partner',
+    //     value: currentUserId,
+    //   },
+    // ]);
+    // console.log('messages -> ', messages);
+    return [];
   }
 }

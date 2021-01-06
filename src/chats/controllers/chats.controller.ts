@@ -3,7 +3,6 @@ import {
   Controller,
   Get,
   HttpStatus,
-  Post,
   Put,
   Req,
   Res,
@@ -31,6 +30,7 @@ export class ChatsController {
   ) {
     try {
       const createdChat = await this.chatService.create(req.user, partnerId);
+
       return res.status(HttpStatus.CREATED).json({
         status: 'ok',
         data: createdChat,
