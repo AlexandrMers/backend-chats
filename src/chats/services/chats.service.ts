@@ -55,7 +55,6 @@ export class ChatsService {
         partner: Types.ObjectId(partnerId),
       }).save();
 
-      // // создание нового сообщения - метод из сервиса сообщений
       await this.commonService.createMessage({
         chatId: createdChat._id,
         type: MessageType.SYSTEM,
@@ -63,7 +62,6 @@ export class ChatsService {
         authorId: author.id,
       });
 
-      // Возвращаю чат с обновленным сообщением
       const updatedChat = await this.ChatModel.findOne({
         _id: createdChat._id,
       })
