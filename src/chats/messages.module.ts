@@ -11,6 +11,7 @@ import { CommonService } from './services/common.service';
 import { MessagesController } from './controllers/messages.controller';
 
 import { ModelName } from '../types';
+import { SocketModule } from '../socket/socket.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { ModelName } from '../types';
     MongooseModule.forFeature([
       { name: ModelName.MESSAGE, schema: MessageModel },
     ]),
+    SocketModule,
   ],
   providers: [CommonService, MessagesService],
   controllers: [MessagesController],

@@ -8,6 +8,7 @@ import { ModelName } from '../../types';
 
 import { formatChatResponse } from '../helpers/formatChatResponse';
 import { formatMessageResponse } from '../helpers/formatMessageResponse';
+import { SocketService } from '../../socket/socket.service';
 
 @Injectable()
 export class CommonService {
@@ -16,6 +17,7 @@ export class CommonService {
     private readonly MessageModel: Model<MessageDocument>,
     @InjectModel(ModelName.CHAT)
     private readonly ChatModel: Model<ChatDocument>,
+    private readonly socketService: SocketService,
   ) {}
 
   async createMessage({
@@ -40,7 +42,13 @@ export class CommonService {
 
     await this.updateLastMessageChat(chatId, createdMessage._id);
 
-    return createdMessage ? formatMessageResponse(createdMessage) : null;
+    const newMessage = createdMessage
+      ? formatMessageResponse(createdMessage)
+      : null;
+
+    this.socketService.server.emit('NEW_MESSAGE', newMessage);
+
+    return newMessage;
   }
 
   async updateLastMessageChat(

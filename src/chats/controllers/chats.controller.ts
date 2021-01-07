@@ -10,11 +10,15 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+
+import { UpdateLastSeenInterceptor } from '../../interceptors/update-last-seen.interceptor';
+
 import { ChatsService } from '../services/chats.service';
+
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+
 import { UserDocument, UserResponseInterface } from '../../users/types';
 import { Statuses } from '../../types';
-import { UpdateLastSeenInterceptor } from '../../common/update-last-seen.interceptor';
 
 @UseInterceptors(UpdateLastSeenInterceptor)
 @Controller('chats')

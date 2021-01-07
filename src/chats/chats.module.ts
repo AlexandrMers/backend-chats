@@ -7,6 +7,7 @@ import { ChatModel } from './models/chat.schema';
 import { UsersModule } from '../users/users.module';
 import { CommonService } from './services/common.service';
 import { MessageModel } from './models/messages.schema';
+import { SocketModule } from '../socket/socket.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { MessageModel } from './models/messages.schema';
     MongooseModule.forFeature([
       { name: ModelName.MESSAGE, schema: MessageModel },
     ]),
+    SocketModule,
   ],
   providers: [ChatsService, CommonService],
   controllers: [ChatsController],

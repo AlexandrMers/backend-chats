@@ -1,10 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { MessageDocument } from '../types';
-import { InjectModel } from '@nestjs/mongoose';
-import { ModelName } from '../../types';
 import { Model } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
+
 import { CommonService } from './common.service';
-import { clearConfigCache } from 'prettier';
+
+import { MessageDocument } from '../types';
+import { ModelName } from '../../types';
+
 import { formatMessageResponse } from '../helpers/formatMessageResponse';
 
 @Injectable()

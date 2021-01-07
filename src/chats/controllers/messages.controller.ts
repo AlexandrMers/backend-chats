@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 
-import { UpdateLastSeenInterceptor } from '../../common/update-last-seen.interceptor';
+import { UpdateLastSeenInterceptor } from '../../interceptors/update-last-seen.interceptor';
 
 import { MessagesService } from '../services/messages.service';
 import { CommonService } from '../services/common.service';

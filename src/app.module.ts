@@ -6,6 +6,8 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ChatsModule } from './chats/chats.module';
 import { MessagesModule } from './chats/messages.module';
+import { SocketModule } from './socket/socket.module';
+import { AppGateway } from './app.gateway';
 
 const mongodbOptions: MongooseModuleOptions = {
   useNewUrlParser: true,
@@ -18,12 +20,13 @@ const mongodbOptions: MongooseModuleOptions = {
   imports: [
     ConfigModule.forRoot(),
     MongooseModule.forRoot(process.env.MONGO_DB_URL, mongodbOptions),
+    SocketModule,
     AuthModule,
     UsersModule,
     ChatsModule,
     MessagesModule,
   ],
-  providers: [],
+  providers: [AppGateway],
   controllers: [],
 })
 export class AppModule {}

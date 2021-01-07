@@ -14,7 +14,7 @@ import { UsersService } from '../services/users.service';
 import { UserResponseInterface } from '../types';
 import { CommonResponseType } from '../../types';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
-import { UpdateLastSeenInterceptor } from '../../common/update-last-seen.interceptor';
+import { UpdateLastSeenInterceptor } from '../../interceptors/update-last-seen.interceptor';
 
 @UseInterceptors(UpdateLastSeenInterceptor)
 @Controller()
