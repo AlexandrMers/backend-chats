@@ -3,6 +3,7 @@ import {
   Get,
   HttpStatus,
   Param,
+  Req,
   Res,
   UseGuards,
   UseInterceptors,
@@ -17,12 +18,44 @@ import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { UpdateLastSeenInterceptor } from '../../interceptors/update-last-seen.interceptor';
 
 @UseInterceptors(UpdateLastSeenInterceptor)
-@Controller()
+@Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @UseGuards(JwtAuthGuard)
-  @Get('user/:id')
+  @Get('me')
+  async getMe(
+    @Req()
+    req: {
+      user: UserResponseInterface;
+    } & Response,
+    @Res()
+    res: Response,
+  ) {
+    try {
+      const user = await this.usersService.getUserById(req.user.id);
+
+      if (!user) {
+        return res.status(HttpStatus.NOT_FOUND).json({
+          status: 'error',
+          message: 'Пользователь не найден',
+        });
+      }
+
+      return res.status(HttpStatus.OK).json({
+        status: 'success',
+        data: user,
+      });
+    } catch (error) {
+      return res.status(HttpStatus.FORBIDDEN).json({
+        status: 'error',
+        message: error.toString(),
+      });
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/:id')
   async getUserInfo(
     @Res() res: Response,
     @Param('id') id: string,
