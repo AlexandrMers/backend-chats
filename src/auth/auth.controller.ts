@@ -39,7 +39,7 @@ export class AuthController {
     } catch (error) {
       return res.status(HttpStatus.FORBIDDEN).json({
         status: Statuses.ERROR,
-        data: error.toString(),
+        message: error.toString(),
       });
     }
   }
