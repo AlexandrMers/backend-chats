@@ -21,7 +21,7 @@ export interface ChatResponseInterface {
   id: ChatDocument['_id'];
   author: ShortUserInterface;
   partner: ShortUserInterface;
-  lastMessage: any;
+  lastMessage: MessageResponseInterface;
 }
 
 export interface MessageResponseInterface {
