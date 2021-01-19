@@ -73,6 +73,14 @@ export class UsersService {
     );
   }
 
+  async getUsers(): Promise<UserResponseInterface[] | []> {
+    return this.UserModel.find().then((userData) =>
+      userData.length
+        ? userData.map((user) => UsersService.formatUser(user))
+        : [],
+    );
+  }
+
   async getUserByEmail(
     email: string,
     isVisiblePassword?: boolean,

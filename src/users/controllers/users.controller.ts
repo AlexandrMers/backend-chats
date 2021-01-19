@@ -81,4 +81,24 @@ export class UsersController {
       });
     }
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/')
+  async getUsers(
+    @Res() res: Response,
+  ): CommonResponseType<UserResponseInterface[]> {
+    try {
+      const users = await this.usersService.getUsers();
+
+      return res.status(HttpStatus.OK).json({
+        status: 'success',
+        data: users,
+      });
+    } catch (error) {
+      return res.status(HttpStatus.FORBIDDEN).json({
+        status: 'error',
+        message: error.toString(),
+      });
+    }
+  }
 }
