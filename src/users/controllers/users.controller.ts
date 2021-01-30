@@ -16,11 +16,15 @@ import { UserResponseInterface } from '../types';
 import { CommonResponseType } from '../../types';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { UpdateLastSeenInterceptor } from '../../interceptors/update-last-seen.interceptor';
+import { SocketService } from '../../socket/socket.service';
 
 @UseInterceptors(UpdateLastSeenInterceptor)
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly socketService: SocketService,
+  ) {}
 
   @UseGuards(JwtAuthGuard)
   @Get('me')

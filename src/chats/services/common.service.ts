@@ -46,8 +46,7 @@ export class CommonService {
       ? formatMessageResponse(createdMessage)
       : null;
 
-    // this.socketService.server.to(chatId).emit('NEW_MESSAGE', newMessage);
-    // this.socketService.server.emit('NEW_MESSAGE', newMessage);
+    this.socketService.server.to(chatId).emit('NEW_MESSAGE', newMessage);
 
     return newMessage;
   }
