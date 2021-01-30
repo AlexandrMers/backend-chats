@@ -7,9 +7,10 @@ import {
 } from '@nestjs/websockets';
 import { Logger } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
+
 import { SocketService } from './socket/socket.service';
 
-@WebSocketGateway()
+@WebSocketGateway(8080)
 export class AppGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   private readonly logger: Logger = new Logger('AppGateway');
@@ -29,8 +30,8 @@ export class AppGateway
     this.logger.log(`client disconnected -> ${client.id}`);
   }
 
-  @SubscribeMessage('messageToServer')
+  @SubscribeMessage('msgFromClient')
   handleMessage(client: Socket, text: string): void {
-    console.log('msg from server -> ', text);
+    console.log('msg from client -> ', text);
   }
 }
