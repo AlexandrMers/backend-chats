@@ -2,13 +2,15 @@ import {
   OnGatewayConnection,
   OnGatewayDisconnect,
   OnGatewayInit,
+  SubscribeMessage,
   WebSocketGateway,
 } from '@nestjs/websockets';
 import { Logger } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 
 import { SocketService } from './socket/socket.service';
-import { UsersService } from './users/services/users.service';
+import { AuthorizedUserInterface } from './users/types';
+import { ChatsService } from './chats/services/chats.service';
 
 @WebSocketGateway(8080)
 export class AppGateway
@@ -17,7 +19,7 @@ export class AppGateway
 
   constructor(
     private readonly socketService: SocketService,
-    private readonly usersService: UsersService,
+    private readonly chatsService: ChatsService,
   ) {}
 
   afterInit(server: Server): any {
@@ -26,11 +28,28 @@ export class AppGateway
   }
 
   handleConnection(client: Socket): void {
-    client.join('5ff5d26a4ec31a7dfbd4cf38');
+    console.log('handle connect');
+
     this.logger.log(`client connected -> ${client.id}`);
   }
 
   handleDisconnect(client: Socket): void {
+    console.log(client.request._query.user);
+
     this.logger.log(`client disconnected -> ${client.id}`);
+  }
+
+  @SubscribeMessage('connectUser')
+  async handleUserConnection(
+    client: Socket,
+    userData: AuthorizedUserInterface,
+  ) {
+    const chats = await this.chatsService.getChatsByAuthorId(userData.id);
+    //Получаем чаты пользователя, и коннектим их в rooms
+    chats.forEach((chat) => {
+      client.join(chat.id);
+    });
+
+    this.socketService.client = client;
   }
 }

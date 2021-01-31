@@ -23,6 +23,7 @@ import { Statuses } from '../../types';
 import { MessageType } from '../types';
 
 import { CreateMessageDto } from '../dto/create-message.dto';
+import { SocketService } from '../../socket/socket.service';
 
 @UseInterceptors(UpdateLastSeenInterceptor)
 @Controller('messages')
@@ -30,6 +31,7 @@ export class MessagesController {
   constructor(
     private readonly messagesService: MessagesService,
     private readonly commonService: CommonService,
+    private readonly socketService: SocketService,
   ) {}
 
   @UseGuards(JwtAuthGuard)
@@ -73,6 +75,10 @@ export class MessagesController {
         text: createMessageDto.text,
         type: MessageType.USER,
       });
+
+      this.socketService.server
+        .to(createMessageDto.chatId)
+        .emit('NEW_MESSAGE', newMessage);
 
       return res.status(HttpStatus.CREATED).json({
         status: Statuses.SUCCESS,

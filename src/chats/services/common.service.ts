@@ -42,13 +42,7 @@ export class CommonService {
 
     await this.updateLastMessageChat(chatId, createdMessage._id);
 
-    const newMessage = createdMessage
-      ? formatMessageResponse(createdMessage)
-      : null;
-
-    this.socketService.server.to(chatId).emit('NEW_MESSAGE', newMessage);
-
-    return newMessage;
+    return createdMessage ? formatMessageResponse(createdMessage) : null;
   }
 
   async updateLastMessageChat(

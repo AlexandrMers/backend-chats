@@ -1,5 +1,6 @@
-import { User } from './models/user-model.schema';
 import { Document } from 'mongoose';
+
+import { User } from './models/user-model.schema';
 
 export interface UserResponseInterface {
   id: UserDocument['_id'];
