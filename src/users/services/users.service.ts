@@ -58,6 +58,7 @@ export class UsersService {
       email: userData.email,
       fullName: userData.fullName,
       password: userData.password,
+      confirm_hash: userData.confirmHash,
     });
 
     return user

@@ -7,6 +7,7 @@ import { UsersService } from '../../users/services/users.service';
 import { CreateUserDto } from '../../users/dto/create-user.dto';
 import { BcryptService } from './bcrypt.service';
 import { LoginUserDto } from '../../users/dto/login-user.dto';
+import { MailerService } from '@nestjs-modules/mailer';
 
 @Injectable()
 export class AuthService {
@@ -14,7 +15,14 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly userService: UsersService,
     private readonly bcryptService: BcryptService,
+    private readonly mailerService: MailerService,
   ) {}
+
+  private static generateHash(email: string): string {
+    const generatedPartHash = Date.now().toString();
+    return `${email}_${generatedPartHash}`;
+  }
+
   async login(userData: LoginUserDto) {
     const candidate = await this.validateUser(userData);
 
@@ -52,11 +60,37 @@ export class AuthService {
     }
 
     const encryptedPassword = await bcrypt.hash(userData.password, 10);
+    const generatedHash = AuthService.generateHash(userData.email);
+    const encryptedHash = await bcrypt.hash(generatedHash, 16);
 
-    return this.userService.create({
+    const user = await this.userService.create({
       password: encryptedPassword,
       email: userData.email,
       fullName: userData.fullName,
+      confirmHash: encryptedHash,
     });
+
+    await this.mailerService
+      .sendMail({
+        to: userData.email,
+        from: process.env.MAIL_USER,
+        subject: 'Подтверждение регистрации',
+        text: 'Подтвердите регистрацию',
+        html: `
+        <h1>Подтверждение регистрации</h1>
+        <p>Чтобы подтвердить регистрацию, пожалуйста, перейдите по <a href='${
+          process.env.BASE_FRONT_URI + encryptedHash
+        }'>ссылке</a>.</p>
+        <p>Если вы ничего не отправляли, пожалуйста, проигнорируйте это письмо.</p>
+      `,
+      })
+      .then((data) => {
+        console.log('letter sent -> ', data);
+      })
+      .catch((err) => {
+        console.log('err => ', err);
+      });
+
+    return user;
   }
 }

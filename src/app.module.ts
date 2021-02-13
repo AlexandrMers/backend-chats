@@ -8,6 +8,8 @@ import { ChatsModule } from './chats/chats.module';
 import { MessagesModule } from './chats/messages.module';
 import { SocketModule } from './socket/socket.module';
 import { AppGateway } from './app.gateway';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { MailerOptions } from '@nestjs-modules/mailer/dist/interfaces/mailer-options.interface';
 
 const mongodbOptions: MongooseModuleOptions = {
   useNewUrlParser: true,
@@ -16,10 +18,22 @@ const mongodbOptions: MongooseModuleOptions = {
   useFindAndModify: false,
 };
 
+const configMailerModule: MailerOptions = {
+  transport: {
+    host: 'smtp.yandex.ru',
+    port: 465,
+    auth: {
+      user: 'ch4ts.test@yandex.ru',
+      pass: '1233214%',
+    },
+  },
+};
+
 @Module({
   imports: [
     ConfigModule.forRoot(),
     MongooseModule.forRoot(process.env.MONGO_DB_URL, mongodbOptions),
+    MailerModule.forRoot(configMailerModule),
     SocketModule,
     AuthModule,
     UsersModule,
