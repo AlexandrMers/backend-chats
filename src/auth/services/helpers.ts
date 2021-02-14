@@ -16,11 +16,11 @@ export const configureSendMailOptions = ({
   html,
 });
 
-export function getTemplateRegistration(encryptedHash: string) {
+export function getTemplateRegistration(hash: string) {
   return `
         <h1>Подтверждение регистрации</h1>
         <p>Для подтверждения регистрации, пожалуйста, перейдите по <a href='${
-          process.env.BASE_FRONT_URI + 'confirm-hash/' + encryptedHash
+          process.env.BASE_FRONT_URI + 'confirm-hash/' + hash
         }'>ссылке</a>.</p>
         <p>Если вы ничего не отправляли, пожалуйста, проигнорируйте это письмо.</p>
       `;

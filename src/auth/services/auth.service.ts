@@ -20,9 +20,10 @@ export class AuthService {
     private readonly mailerService: MailerService,
   ) {}
 
-  private static generateHash(email: string): string {
-    const generatedPartHash = Date.now().toString();
-    return `${email}_${generatedPartHash}`;
+  private static generateHash(): string {
+    const generatedPart1 = Date.now().toString();
+    const generatedPart2 = Math.random().toString();
+    return `${generatedPart1}_${generatedPart2}`;
   }
 
   async login(userData: LoginUserDto) {
@@ -62,23 +63,22 @@ export class AuthService {
     }
 
     const encryptedPassword = await bcrypt.hash(userData.password, 10);
-    const generatedHash = AuthService.generateHash(userData.email);
-    const encryptedHash = await bcrypt.hash(generatedHash, 32);
+    const generatedHash = AuthService.generateHash();
 
     const user = await this.userService.create({
       password: encryptedPassword,
       email: userData.email,
       fullName: userData.fullName,
-      confirmHash: encryptedHash,
+      confirmHash: generatedHash,
     });
 
     if (user) {
-      await this.mailerService.sendMail(
+      this.mailerService.sendMail(
         configureSendMailOptions({
           to: userData.email,
           subject: 'Подтверждение регистрации',
           text: 'Подтвердите регистрацию',
-          html: getTemplateRegistration(encryptedHash),
+          html: getTemplateRegistration(generatedHash),
         }),
       );
     }
@@ -93,10 +93,7 @@ export class AuthService {
       throw new Error('Не найден пользователь по сгенерированному хешу');
     }
 
-    const hashResult = await this.bcryptService.compare(
-      hash,
-      userByHash.confirmHash,
-    );
+    const hashResult = userByHash.confirmHash === hash;
 
     if (!hashResult) {
       throw new Error(
