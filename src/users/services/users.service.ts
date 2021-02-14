@@ -39,6 +39,7 @@ export class UsersService {
       () => ({
         id: userDocJson?._id,
         confirmed: userDocJson?.confirmed,
+        confirmHash: userDocJson?.confirm_hash,
         lastSeen: userDocJson?.last_seen,
         fullName: userDocJson?.fullName,
         email: userDocJson?.email,
@@ -93,6 +94,25 @@ export class UsersService {
       .then((userData) =>
         userData ? UsersService.formatUser(userData, isVisiblePassword) : null,
       );
+  }
+
+  async getUserByHash(hash: string) {
+    return this.UserModel.findOne({
+      confirm_hash: hash,
+    }).then((userData) =>
+      userData ? UsersService.formatUser(userData) : null,
+    );
+  }
+
+  async updateConfirmedUserStatus(hash) {
+    this.UserModel.findOneAndUpdate(
+      { confirm_hash: hash },
+      {
+        confirmed: true,
+      },
+      { new: true },
+      () => {},
+    );
   }
 
   async updateUserLastSeenDate(id: string): Promise<UserDocument> {

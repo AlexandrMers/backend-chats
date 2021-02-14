@@ -9,11 +9,11 @@ export class BcryptService {
     this.bcrypt = bcrypt;
   }
 
-  async hash(password: string, salt: number) {
-    return this.bcrypt.hash(password, salt);
+  async hash(value: string, salt: number) {
+    return this.bcrypt.hash(value, salt);
   }
 
-  async compare(passwordFromReq: string, passwordFromDb: string) {
-    return this.bcrypt.compareSync(passwordFromReq, passwordFromDb);
+  async compare(valueCrypt1: string, valueCrypt2: string) {
+    return this.bcrypt.compareSync(valueCrypt1, valueCrypt2);
   }
 }

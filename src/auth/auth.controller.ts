@@ -9,6 +9,7 @@ import { CommonResponseType, Statuses } from '../types';
 
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { LoginUserDto } from '../users/dto/login-user.dto';
+import { HashUserDTO } from './hash.dto';
 
 interface AuthorizedRequestInterface extends Request {
   user: AuthorizedUserInterface;
@@ -55,6 +56,26 @@ export class AuthController {
       return res.status(HttpStatus.CREATED).json({
         status: Statuses.SUCCESS,
         data: createdUser,
+      });
+    } catch (error) {
+      return res.status(HttpStatus.FORBIDDEN).json({
+        status: Statuses.ERROR,
+        message: error.toString(),
+      });
+    }
+  }
+
+  @Post('confirm-hash')
+  async confirmHash(
+    @Res() res: Response,
+    @Body() hashUserDTO: HashUserDTO,
+  ): CommonResponseType<string> {
+    try {
+      const message = await this.authService.confirmHash(hashUserDTO.hash);
+
+      return res.status(HttpStatus.CREATED).json({
+        status: Statuses.SUCCESS,
+        data: message,
       });
     } catch (error) {
       return res.status(HttpStatus.FORBIDDEN).json({
