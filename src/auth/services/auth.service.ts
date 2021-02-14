@@ -1,13 +1,14 @@
 import * as bcrypt from 'bcrypt';
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { MailerService } from '@nestjs-modules/mailer';
 
 import { UsersService } from '../../users/services/users.service';
+import { BcryptService } from './bcrypt.service';
 
 import { CreateUserDto } from '../../users/dto/create-user.dto';
-import { BcryptService } from './bcrypt.service';
 import { LoginUserDto } from '../../users/dto/login-user.dto';
-import { MailerService } from '@nestjs-modules/mailer';
+import { configureSendMailOptions, getTemplateRegistration } from './helpers';
 
 @Injectable()
 export class AuthService {
@@ -70,26 +71,16 @@ export class AuthService {
       confirmHash: encryptedHash,
     });
 
-    await this.mailerService
-      .sendMail({
-        to: userData.email,
-        from: process.env.MAIL_USER,
-        subject: 'Подтверждение регистрации',
-        text: 'Подтвердите регистрацию',
-        html: `
-        <h1>Подтверждение регистрации</h1>
-        <p>Чтобы подтвердить регистрацию, пожалуйста, перейдите по <a href='${
-          process.env.BASE_FRONT_URI + encryptedHash
-        }'>ссылке</a>.</p>
-        <p>Если вы ничего не отправляли, пожалуйста, проигнорируйте это письмо.</p>
-      `,
-      })
-      .then((data) => {
-        console.log('letter sent -> ', data);
-      })
-      .catch((err) => {
-        console.log('err => ', err);
-      });
+    if (user) {
+      await this.mailerService.sendMail(
+        configureSendMailOptions({
+          to: userData.email,
+          subject: 'Подтверждение регистрации',
+          text: 'Подтвердите регистрацию',
+          html: getTemplateRegistration(encryptedHash),
+        }),
+      );
+    }
 
     return user;
   }

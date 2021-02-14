@@ -18,22 +18,25 @@ const mongodbOptions: MongooseModuleOptions = {
   useFindAndModify: false,
 };
 
-const configMailerModule: MailerOptions = {
-  transport: {
-    host: 'smtp.yandex.ru',
-    port: 465,
-    auth: {
-      user: 'ch4ts.test@yandex.ru',
-      pass: '1233214%',
+const configureMailerOptions: () => MailerOptions = () => {
+  return {
+    transport: {
+      host: process.env.MAIL_HOST,
+      port: process.env.MAIL_PORT,
+      auth: {
+        user: process.env.MAIL_USER,
+        pass: process.env.MAIL_PASSWORD,
+      },
+      secure: true,
     },
-  },
+  };
 };
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     MongooseModule.forRoot(process.env.MONGO_DB_URL, mongodbOptions),
-    MailerModule.forRoot(configMailerModule),
+    MailerModule.forRoot(configureMailerOptions()),
     SocketModule,
     AuthModule,
     UsersModule,
