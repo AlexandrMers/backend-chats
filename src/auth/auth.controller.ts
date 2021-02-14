@@ -65,8 +65,8 @@ export class AuthController {
     }
   }
 
-  @Post('confirm-hash')
-  async confirmHash(
+  @Post('confirm-registration')
+  async confirmRegistration(
     @Res() res: Response,
     @Body() hashUserDTO: HashUserDTO,
   ): CommonResponseType<string> {
