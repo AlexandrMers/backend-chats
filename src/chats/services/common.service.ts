@@ -2,13 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 
+import { SocketService } from '../../socket/socket.service';
+import { ChatEvent } from '../../socket/types';
+
 import { UserDocument } from '../../users/types';
 import { ChatDocument, MessageDocument, MessageType } from '../types';
 import { ModelName } from '../../types';
 
 import { formatChatResponse } from '../helpers/formatChatResponse';
 import { formatMessageResponse } from '../helpers/formatMessageResponse';
-import { SocketService } from '../../socket/socket.service';
 
 @Injectable()
 export class CommonService {
@@ -42,7 +44,13 @@ export class CommonService {
 
     await this.updateLastMessageChat(chatId, createdMessage._id);
 
-    return createdMessage ? formatMessageResponse(createdMessage) : null;
+    const newMessage = createdMessage
+      ? formatMessageResponse(createdMessage)
+      : null;
+    this.socketService.server
+      .in(chatId)
+      .emit(ChatEvent.NEW_MESSAGE, newMessage);
+    return newMessage;
   }
 
   async updateLastMessageChat(

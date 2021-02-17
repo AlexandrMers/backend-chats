@@ -1,0 +1,5 @@
+export enum ChatEvent {
+  NEW_MESSAGE = 'NEW_MESSAGE',
+  CREATED_CHAT = 'CREATED_CHAT',
+  CONNECT_USER = 'CONNECT_USER',
+}
