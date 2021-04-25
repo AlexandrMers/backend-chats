@@ -9,7 +9,6 @@ import { MessagesModule } from './chats/messages.module';
 import { SocketModule } from './socket/socket.module';
 import { AppGateway } from './app.gateway';
 import { MailerModule } from '@nestjs-modules/mailer';
-import { MailerOptions } from '@nestjs-modules/mailer/dist/interfaces/mailer-options.interface';
 
 const mongodbOptions: MongooseModuleOptions = {
   useNewUrlParser: true,
@@ -18,7 +17,7 @@ const mongodbOptions: MongooseModuleOptions = {
   useFindAndModify: false,
 };
 
-const configureMailerOptions: () => MailerOptions = () => {
+const configureMailerOptions = () => {
   return {
     transport: {
       host: process.env.MAIL_HOST,
