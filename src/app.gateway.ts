@@ -41,7 +41,9 @@ export class AppGateway
     client: TypedSocket<{ userInfo: UserResponseInterface }>,
   ): Promise<void> {
     // TODO - меняем статус пользователя на isOnline=false
-    await this.usersService.setOnlineStatusInUser(client.userInfo.id, false);
+    if (client?.id && client?.userInfo) {
+      await this.usersService.setOnlineStatusInUser(client.userInfo.id, false);
+    }
 
     const chatsBySocketId = this.activeSockets[client.id] || [];
     if (chatsBySocketId.length) {

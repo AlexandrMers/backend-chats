@@ -46,6 +46,7 @@ export class UsersService {
         fullName: userDocJson.fullName,
         email: userDocJson.email,
         isOnline: userDocJson.is_online,
+        avatar: userDocJson.avatar,
       }),
     )();
   }
