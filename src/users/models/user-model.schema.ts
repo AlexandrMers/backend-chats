@@ -47,6 +47,12 @@ export class User {
     default: new Date(),
   })
   last_seen: Date;
+
+  @Prop({
+    type: Boolean,
+    default: false,
+  })
+  is_online: boolean;
 }
 
 export const UserModel = SchemaFactory.createForClass(User);

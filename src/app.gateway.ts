@@ -13,6 +13,7 @@ import { ChatsService } from './chats/services/chats.service';
 
 import { ChatEvent } from './socket/types';
 import { AuthorizedUserInterface, UserResponseInterface } from './users/types';
+import { UsersService } from './users/services/users.service';
 
 type TypedSocket<T> = Socket & T;
 
@@ -25,6 +26,7 @@ export class AppGateway
   constructor(
     private readonly socketService: SocketService,
     private readonly chatsService: ChatsService,
+    private readonly usersService: UsersService,
   ) {}
 
   afterInit(server: Server): any {
@@ -35,9 +37,12 @@ export class AppGateway
     this.logger.log(`client connected -> ${client.id}`);
   }
 
-  handleDisconnect(
+  async handleDisconnect(
     client: TypedSocket<{ userInfo: UserResponseInterface }>,
-  ): void {
+  ): Promise<void> {
+    // TODO - меняем статус пользователя на isOnline=false
+    await this.usersService.setOnlineStatusInUser(client.userInfo.id, false);
+
     const chatsBySocketId = this.activeSockets[client.id] || [];
     if (chatsBySocketId.length) {
       chatsBySocketId.forEach((chat) => {
@@ -54,9 +59,12 @@ export class AppGateway
     client: TypedSocket<{ userInfo: UserResponseInterface }>,
     userData: AuthorizedUserInterface,
   ) {
-    const chats = await this.chatsService.getChatsByAuthorId(userData.id);
+    //TODO - устанавливаем статус подключившегося пользователя isOnline=true
+    await this.usersService.setOnlineStatusInUser(userData.id, true);
 
     // TODO - при подключении определенного юзера, мы получаем все чаты, в которых он участвует, и отсылаем в них события, что этот пользователь появился в сети
+    const chats = await this.chatsService.getChatsByAuthorId(userData.id);
+
     chats.forEach((chat) => {
       client.userInfo = userData;
       client.join(chat.id);

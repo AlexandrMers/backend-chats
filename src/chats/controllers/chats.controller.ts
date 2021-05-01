@@ -19,14 +19,12 @@ import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 
 import { UserDocument, UserResponseInterface } from '../../users/types';
 import { Statuses } from '../../types';
-import { SocketService } from '../../socket/socket.service';
 
 @UseInterceptors(UpdateLastSeenInterceptor)
 @Controller('chats')
 export class ChatsController {
   constructor(
-    private readonly chatService: ChatsService,
-    private readonly socketService: SocketService,
+    private readonly chatService: ChatsService, // private readonly socketService: SocketService, //TODO - пока что нет инстанса сокета
   ) {}
 
   @UseGuards(JwtAuthGuard)
@@ -38,11 +36,6 @@ export class ChatsController {
   ) {
     try {
       const createdChat = await this.chatService.create(req.user, partnerId);
-
-      this.socketService.client.join(createdChat.id);
-      this.socketService.server
-        .to(createdChat.id)
-        .emit('CHAT:CREATED', createdChat);
 
       return res.status(HttpStatus.CREATED).json({
         status: 'ok',

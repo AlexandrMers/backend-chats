@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { assoc, compose, identity, ifElse, omit } from 'ramda';
 import { InjectModel } from '@nestjs/mongoose';
+import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 
 import { ModelName } from '../../types';
@@ -9,7 +10,6 @@ import {
   UserDocument,
   UserResponseInterface,
 } from '../types';
-import { assoc, compose, identity, ifElse, omit } from 'ramda';
 
 @Injectable()
 export class UsersService {
@@ -30,6 +30,8 @@ export class UsersService {
   ): UserResponseInterface {
     const userDocJson = userDoc.toJSON();
 
+    if (!userDocJson) return null;
+
     return compose(
       ifElse(
         () => visiblePassword,
@@ -37,12 +39,13 @@ export class UsersService {
         identity,
       ),
       () => ({
-        id: userDocJson?._id,
-        confirmed: userDocJson?.confirmed,
-        confirmHash: userDocJson?.confirm_hash,
-        lastSeen: userDocJson?.last_seen,
-        fullName: userDocJson?.fullName,
-        email: userDocJson?.email,
+        id: userDocJson._id,
+        confirmed: userDocJson.confirmed,
+        confirmHash: userDocJson.confirm_hash,
+        lastSeen: userDocJson.last_seen,
+        fullName: userDocJson.fullName,
+        email: userDocJson.email,
+        isOnline: userDocJson.is_online,
       }),
     )();
   }
@@ -122,6 +125,24 @@ export class UsersService {
         last_seen: new Date(),
       },
       { new: true },
+      () => {},
+    );
+  }
+
+  async setOnlineStatusInUser(
+    id: string,
+    status: boolean,
+  ): Promise<UserDocument> {
+    return this.UserModel.findOneAndUpdate(
+      {
+        _id: id,
+      },
+      {
+        is_online: status,
+      },
+      {
+        new: true,
+      },
       () => {},
     );
   }
