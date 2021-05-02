@@ -10,10 +10,10 @@ import { Server, Socket } from 'socket.io';
 
 import { SocketService } from './socket/socket.service';
 import { ChatsService } from './chats/services/chats.service';
+import { UsersService } from './users/services/users.service';
 
 import { ChatEvent } from './socket/types';
 import { AuthorizedUserInterface, UserResponseInterface } from './users/types';
-import { UsersService } from './users/services/users.service';
 
 type TypedSocket<T> = Socket & T;
 
