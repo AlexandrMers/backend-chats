@@ -14,6 +14,7 @@ import { UsersService } from './users/services/users.service';
 
 import { ChatEvent } from './socket/types';
 import { AuthorizedUserInterface, UserResponseInterface } from './users/types';
+import { ChatResponseInterface } from './chats/types';
 
 type TypedSocket<T> = Socket & T;
 
@@ -21,7 +22,7 @@ type TypedSocket<T> = Socket & T;
 export class AppGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   private readonly logger: Logger = new Logger('AppGateway');
-  private activeSockets: any = {};
+  private activeSockets: { [id: string]: ChatResponseInterface[] } = {};
 
   constructor(
     private readonly socketService: SocketService,
