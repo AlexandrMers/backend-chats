@@ -14,17 +14,20 @@ import { Request, Response } from 'express';
 import { UpdateLastSeenInterceptor } from '../../interceptors/update-last-seen.interceptor';
 
 import { ChatsService } from '../services/chats.service';
+import { SocketService } from '../../socket/socket.service';
 
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 
 import { UserDocument, UserResponseInterface } from '../../users/types';
 import { Statuses } from '../../types';
+import { ChatEvent } from '../../socket/types';
 
 @UseInterceptors(UpdateLastSeenInterceptor)
 @Controller('chats')
 export class ChatsController {
   constructor(
-    private readonly chatService: ChatsService, // private readonly socketService: SocketService, //TODO - пока что нет инстанса сокета
+    private readonly chatService: ChatsService,
+    private readonly socketService: SocketService,
   ) {}
 
   @UseGuards(JwtAuthGuard)
@@ -36,6 +39,9 @@ export class ChatsController {
   ) {
     try {
       const createdChat = await this.chatService.create(req.user, partnerId);
+
+      //TODO - пока что событие шлется всем пользователям!
+      this.socketService.server.emit(ChatEvent.CREATED_CHAT, createdChat);
 
       return res.status(HttpStatus.CREATED).json({
         status: 'ok',

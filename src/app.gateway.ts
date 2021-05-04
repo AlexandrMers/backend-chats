@@ -12,17 +12,17 @@ import { SocketService } from './socket/socket.service';
 import { ChatsService } from './chats/services/chats.service';
 import { UsersService } from './users/services/users.service';
 
-import { ChatEvent } from './socket/types';
+import {
+  ChatEvent,
+  SocketClientWithUserInfo,
+  TypedSocket,
+} from './socket/types';
 import { AuthorizedUserInterface, UserResponseInterface } from './users/types';
-import { ChatResponseInterface } from './chats/types';
-
-type TypedSocket<T> = Socket & T;
 
 @WebSocketGateway(8080)
 export class AppGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   private readonly logger: Logger = new Logger('AppGateway');
-  private activeSockets: { [id: string]: ChatResponseInterface[] } = {};
 
   constructor(
     private readonly socketService: SocketService,
@@ -38,23 +38,20 @@ export class AppGateway
     this.logger.log(`client connected -> ${client.id}`);
   }
 
-  async handleDisconnect(
-    client: TypedSocket<{ userInfo: UserResponseInterface }>,
-  ): Promise<void> {
-    // TODO - меняем статус пользователя на isOnline=false
+  async handleDisconnect(client: SocketClientWithUserInfo): Promise<void> {
     if (client?.id && client?.userInfo) {
       await this.usersService.setOnlineStatusInUser(client.userInfo.id, false);
     }
 
-    const chatsBySocketId = this.activeSockets[client.id] || [];
+    const chatsBySocketId = this.socketService.activeSockets[client.id] || [];
+
     if (chatsBySocketId.length) {
       chatsBySocketId.forEach((chat) => {
         client.to(chat.id).emit(ChatEvent.USER_OFFLINE, client.userInfo);
       });
     }
 
-    //TODO - при рассоединении сокета, необходимо удалить из памяти объект с сокетами
-    delete this.activeSockets[client.id];
+    delete this.socketService.activeSockets[client.id];
   }
 
   @SubscribeMessage(ChatEvent.CONNECT_USER)
@@ -62,19 +59,18 @@ export class AppGateway
     client: TypedSocket<{ userInfo: UserResponseInterface }>,
     userData: AuthorizedUserInterface,
   ) {
-    //TODO - устанавливаем статус подключившегося пользователя isOnline=true
     await this.usersService.setOnlineStatusInUser(userData.id, true);
 
-    // TODO - при подключении определенного юзера, мы получаем все чаты, в которых он участвует, и отсылаем в них события, что этот пользователь появился в сети
     const chats = await this.chatsService.getChatsByAuthorId(userData.id);
 
-    chats.forEach((chat) => {
-      client.userInfo = userData;
-      client.join(chat.id);
+    client.userInfo = userData;
 
+    chats.forEach((chat) => {
+      client.join(chat.id);
       client.to(chat.id).emit(ChatEvent.USER_ONLINE, userData);
     });
 
-    this.activeSockets[client.id] = chats;
+    this.socketService.addSocket(client);
+    this.socketService.activeSockets[client.id] = chats;
   }
 }
