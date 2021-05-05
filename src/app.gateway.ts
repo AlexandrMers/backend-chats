@@ -48,10 +48,11 @@ export class AppGateway
     if (chatsBySocketId.length) {
       chatsBySocketId.forEach((chat) => {
         client.to(chat.id).emit(ChatEvent.USER_OFFLINE, client.userInfo);
+        client.leave(chat.id);
       });
     }
 
-    delete this.socketService.activeSockets[client.id];
+    this.socketService.deleteSocket(client);
   }
 
   @SubscribeMessage(ChatEvent.CONNECT_USER)

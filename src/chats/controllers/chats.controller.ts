@@ -40,8 +40,7 @@ export class ChatsController {
     try {
       const createdChat = await this.chatService.create(req.user, partnerId);
 
-      //TODO - пока что событие шлется всем пользователям!
-      this.socketService.server.emit(ChatEvent.CREATED_CHAT, createdChat);
+      this.socketService.createNewChat(createdChat, partnerId);
 
       return res.status(HttpStatus.CREATED).json({
         status: 'ok',
