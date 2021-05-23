@@ -21,7 +21,8 @@ import { AuthorizedUserInterface, UserResponseInterface } from './users/types';
 
 @WebSocketGateway(8080)
 export class AppGateway
-  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
+{
   private readonly logger: Logger = new Logger('AppGateway');
 
   constructor(
