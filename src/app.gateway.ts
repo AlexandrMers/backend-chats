@@ -56,8 +56,6 @@ export class AppGateway
     client.userInfo = userData;
     client.chats = chats;
 
-    console.log('client connected ', client.userInfo);
-
     chats.forEach((chat) => {
       client.join(chat.id);
     });
