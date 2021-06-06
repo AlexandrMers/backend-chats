@@ -51,11 +51,18 @@ export class SocketService {
     });
   }
 
-  createNewChat(partnerId: string, createdChat: ChatResponseInterface) {
-    const foundSocket = this.getSocketByUserId(partnerId);
+  createNewChat(
+    authorId: string,
+    partnerId: string,
+    createdChat: ChatResponseInterface,
+  ) {
+    const foundSocket =
+      this.getSocketByUserId(partnerId) ?? this.getSocketByUserId(authorId);
     if (!foundSocket) {
       return;
     }
+
+    console.log('found socket here -> ', foundSocket);
 
     foundSocket.chats.push(createdChat);
     foundSocket.join(createdChat.id);

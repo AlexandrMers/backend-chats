@@ -39,7 +39,7 @@ export class ChatsController {
     try {
       const createdChat = await this.chatService.create(req.user, partnerId);
 
-      this.socketService.createNewChat(partnerId, createdChat);
+      this.socketService.createNewChat(req.user.id, partnerId, createdChat);
 
       return res.status(HttpStatus.CREATED).json({
         status: 'ok',
