@@ -13,10 +13,10 @@ import { Request, Response } from 'express';
 
 import { UpdateLastSeenInterceptor } from '../../interceptors/update-last-seen.interceptor';
 
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+
 import { MessagesService } from '../services/messages.service';
 import { CommonService } from '../services/common.service';
-
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 
 import { UserResponseInterface } from '../../users/types';
 import { Statuses } from '../../types';
@@ -24,6 +24,8 @@ import { MessageType } from '../types';
 
 import { CreateMessageDto } from '../dto/create-message.dto';
 import { SocketService } from '../../socket/socket.service';
+import { ChatEvent } from '../../socket/types';
+import { chain } from 'ramda';
 
 @UseInterceptors(UpdateLastSeenInterceptor)
 @Controller('messages')
@@ -76,9 +78,7 @@ export class MessagesController {
         type: MessageType.USER,
       });
 
-      this.socketService.server
-        .to(createMessageDto.chatId)
-        .emit('NEW_MESSAGE', newMessage);
+      this.socketService.createChatMessage(createMessageDto.chatId, newMessage);
 
       return res.status(HttpStatus.CREATED).json({
         status: Statuses.SUCCESS,

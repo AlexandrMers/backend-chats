@@ -1,48 +1,81 @@
 import { Injectable } from '@nestjs/common';
 import { Server } from 'socket.io';
-import { ChatResponseInterface } from '../chats/types';
+
 import { ChatEvent, SocketClientWithUserInfo } from './types';
+import {
+  ChatResponseInterface,
+  MessageResponseInterface,
+} from '../chats/types';
+import { UserResponseInterface } from '../users/types';
 
 @Injectable()
 export class SocketService {
   public server: Server = null;
-  private clients: Set<SocketClientWithUserInfo> = new Set();
-  public activeSockets: { [id: string]: ChatResponseInterface[] } = {};
+  private sockets: SocketClientWithUserInfo[] = [];
 
-  public addSocket(socket: SocketClientWithUserInfo) {
-    this.clients.add(socket);
+  getAllSockets() {
+    return this.sockets;
   }
 
-  public getSocketClientByUserId(userId: string) {
-    const socketClients = Array.from(this.clients.values());
+  addSocket(socket: SocketClientWithUserInfo) {
+    this.sockets = [...this.sockets, socket];
+  }
 
-    const foundClientById: SocketClientWithUserInfo | null = socketClients.find(
-      (socket) => socket.userInfo.id === userId,
+  removeSocket(socketId: string) {
+    this.sockets = this.sockets.filter((socket) => socket.id !== socketId);
+  }
+
+  getSocketByUserId(id: string) {
+    const foundSocket = this.sockets.find(
+      (socket) => socket.userInfo.id === id,
     );
 
-    return foundClientById;
+    console.log('foundSocket -> ', foundSocket);
+
+    return foundSocket ?? null;
   }
 
-  public deleteSocket(socket: SocketClientWithUserInfo) {
-    const activeSocketDrop = this.activeSockets[socket.id];
-    if (activeSocketDrop) {
-      delete this.activeSockets[socket.id];
-    }
-    this.clients.delete(socket);
+  getSocketsByChatId(chatId: string) {
+    const foundSocket = this.sockets.filter((socket) =>
+      socket.chats.map((chat) => chat.id).includes(chatId),
+    );
+
+    return foundSocket ?? null;
   }
 
-  public createNewChat(chat: ChatResponseInterface, partnerId: string) {
-    const client = this.getSocketClientByUserId(partnerId);
+  createChatMessage(chatId: string, newMessage: MessageResponseInterface) {
+    const socketsForSend = this.getSocketsByChatId(chatId);
 
-    if (!client) return;
+    socketsForSend.forEach((socket) => {
+      socket.emit(ChatEvent.NEW_MESSAGE, newMessage);
+    });
+  }
 
-    client.join(partnerId);
-    client.to(partnerId).emit(ChatEvent.CREATED_CHAT, chat);
-
-    const chatsByClientId = this.activeSockets[client.id];
-
-    if (chatsByClientId) {
-      chatsByClientId.push(chat);
+  createNewChat(partnerId: string, createdChat: ChatResponseInterface) {
+    const foundSocket = this.getSocketByUserId(partnerId);
+    if (!foundSocket) {
+      return;
     }
+
+    foundSocket.chats.push(createdChat);
+    foundSocket.join(createdChat.id);
+    foundSocket.emit(ChatEvent.CREATED_CHAT, createdChat);
+  }
+
+  setUserIsOnline(
+    userData: UserResponseInterface,
+    chats: ChatResponseInterface[],
+    isOnline: boolean,
+  ) {
+    this.sockets.forEach((socket) => {
+      chats.forEach((chat) => {
+        socket
+          .to(chat.id)
+          .emit(
+            isOnline ? ChatEvent.USER_ONLINE : ChatEvent.USER_OFFLINE,
+            userData,
+          );
+      });
+    });
   }
 }

@@ -12,12 +12,8 @@ import { SocketService } from './socket/socket.service';
 import { ChatsService } from './chats/services/chats.service';
 import { UsersService } from './users/services/users.service';
 
-import {
-  ChatEvent,
-  SocketClientWithUserInfo,
-  TypedSocket,
-} from './socket/types';
-import { AuthorizedUserInterface, UserResponseInterface } from './users/types';
+import { ChatEvent, SocketClientWithUserInfo } from './socket/types';
+import { AuthorizedUserInterface } from './users/types';
 
 @WebSocketGateway(8080)
 export class AppGateway
@@ -42,37 +38,31 @@ export class AppGateway
   async handleDisconnect(client: SocketClientWithUserInfo): Promise<void> {
     if (client?.id && client?.userInfo) {
       await this.usersService.setOnlineStatusInUser(client.userInfo.id, false);
+
+      this.socketService.setUserIsOnline(client.userInfo, client.chats, false);
     }
 
-    const chatsBySocketId = this.socketService.activeSockets[client.id] || [];
-
-    if (chatsBySocketId.length) {
-      chatsBySocketId.forEach((chat) => {
-        client.to(chat.id).emit(ChatEvent.USER_OFFLINE, client.userInfo);
-        client.leave(chat.id);
-      });
-    }
-
-    this.socketService.deleteSocket(client);
+    this.socketService.removeSocket(client.id);
   }
 
   @SubscribeMessage(ChatEvent.CONNECT_USER)
   async handleUserConnection(
-    client: TypedSocket<{ userInfo: UserResponseInterface }>,
+    client: SocketClientWithUserInfo,
     userData: AuthorizedUserInterface,
   ) {
     await this.usersService.setOnlineStatusInUser(userData.id, true);
-
-    const chats = await this.chatsService.getChatsByAuthorId(userData.id);
+    const chats = await this.chatsService.getChatsByParticipant(userData.id);
 
     client.userInfo = userData;
+    client.chats = chats;
+
+    console.log('client connected ', client.userInfo);
 
     chats.forEach((chat) => {
       client.join(chat.id);
-      client.to(chat.id).emit(ChatEvent.USER_ONLINE, userData);
     });
 
     this.socketService.addSocket(client);
-    this.socketService.activeSockets[client.id] = chats;
+    this.socketService.setUserIsOnline(userData, chats, true);
   }
 }

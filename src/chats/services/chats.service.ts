@@ -76,7 +76,7 @@ export class ChatsService {
     }
   };
 
-  getChatsByAuthorId = async (
+  getChatsByParticipant = async (
     authorId: UserDocument['_id'],
   ): Promise<ChatResponseInterface[]> => {
     try {

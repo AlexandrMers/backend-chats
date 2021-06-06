@@ -20,7 +20,6 @@ import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 
 import { UserDocument, UserResponseInterface } from '../../users/types';
 import { Statuses } from '../../types';
-import { ChatEvent } from '../../socket/types';
 
 @UseInterceptors(UpdateLastSeenInterceptor)
 @Controller('chats')
@@ -40,7 +39,7 @@ export class ChatsController {
     try {
       const createdChat = await this.chatService.create(req.user, partnerId);
 
-      this.socketService.createNewChat(createdChat, partnerId);
+      this.socketService.createNewChat(partnerId, createdChat);
 
       return res.status(HttpStatus.CREATED).json({
         status: 'ok',
@@ -61,7 +60,7 @@ export class ChatsController {
     @Res() res: Response,
   ) {
     try {
-      const chats = await this.chatService.getChatsByAuthorId(req.user.id);
+      const chats = await this.chatService.getChatsByParticipant(req.user.id);
 
       res.status(HttpStatus.OK).json({
         status: Statuses.SUCCESS,
