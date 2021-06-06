@@ -30,8 +30,6 @@ export class SocketService {
       (socket) => socket.userInfo.id === id,
     );
 
-    console.log('foundSocket -> ', foundSocket);
-
     return foundSocket ?? null;
   }
 
@@ -56,17 +54,20 @@ export class SocketService {
     partnerId: string,
     createdChat: ChatResponseInterface,
   ) {
-    const foundSocket =
-      this.getSocketByUserId(partnerId) ?? this.getSocketByUserId(authorId);
-    if (!foundSocket) {
-      return;
+    const foundSocketByPartnerId = this.getSocketByUserId(partnerId);
+    const foundSocketByAuthorId = this.getSocketByUserId(authorId);
+
+    if (foundSocketByAuthorId) {
+      foundSocketByAuthorId?.chats.push(createdChat);
+      foundSocketByAuthorId?.join(createdChat.id);
+      foundSocketByAuthorId?.emit(ChatEvent.CREATED_CHAT, createdChat);
     }
 
-    console.log('found socket here -> ', foundSocket);
-
-    foundSocket.chats.push(createdChat);
-    foundSocket.join(createdChat.id);
-    foundSocket.emit(ChatEvent.CREATED_CHAT, createdChat);
+    if (foundSocketByPartnerId) {
+      foundSocketByPartnerId?.chats.push(createdChat);
+      foundSocketByPartnerId?.join(createdChat.id);
+      foundSocketByPartnerId?.emit(ChatEvent.CREATED_CHAT, createdChat);
+    }
   }
 
   setUserIsOnline(
