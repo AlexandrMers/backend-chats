@@ -4,6 +4,7 @@ export enum ModelName {
   USER = 'User',
   CHAT = 'Chat',
   MESSAGE = 'Message',
+  FILE_UPLOAD = 'FileUpload',
 }
 
 export enum Statuses {

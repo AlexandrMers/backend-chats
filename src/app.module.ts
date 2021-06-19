@@ -13,6 +13,7 @@ import { MessagesModule } from './chats/messages.module';
 import { SocketModule } from './socket/socket.module';
 
 import { AppGateway } from './app.gateway';
+import { UploadFilesModule } from './upload-files/upload-files.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { AppGateway } from './app.gateway';
     UsersModule,
     ChatsModule,
     MessagesModule,
+    UploadFilesModule,
   ],
   providers: [AppGateway],
   controllers: [],
