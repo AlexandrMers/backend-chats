@@ -1,4 +1,5 @@
-import { Response } from 'express';
+import { Request, Response } from 'express';
+import { AuthorizedUserInterface } from './users/types';
 
 export enum ModelName {
   USER = 'User',
@@ -25,3 +26,7 @@ type ErrorResponseType = Response<{
   status: Statuses.ERROR;
   message: string;
 }>;
+
+export interface AuthorizedRequestInterface extends Request {
+  user: AuthorizedUserInterface;
+}

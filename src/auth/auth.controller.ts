@@ -1,19 +1,19 @@
 import { Body, Controller, HttpStatus, Post, Req, Res } from '@nestjs/common';
-import { Response, Request } from 'express';
+import { Response } from 'express';
 
 import { UsersService } from '../users/services/users.service';
 import { AuthService } from './services/auth.service';
 
-import { AuthorizedUserInterface, UserResponseInterface } from '../users/types';
-import { CommonResponseType, Statuses } from '../types';
+import { UserResponseInterface } from '../users/types';
+import {
+  AuthorizedRequestInterface,
+  CommonResponseType,
+  Statuses,
+} from '../types';
 
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { LoginUserDto } from '../users/dto/login-user.dto';
 import { HashUserDTO } from './hash.dto';
-
-interface AuthorizedRequestInterface extends Request {
-  user: AuthorizedUserInterface;
-}
 
 @Controller()
 export class AuthController {

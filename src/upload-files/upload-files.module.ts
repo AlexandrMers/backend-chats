@@ -1,11 +1,13 @@
 import { Module } from '@nestjs/common';
+
+// modules
 import { MongooseModule } from '@nestjs/mongoose';
+import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
 
 // controllers
 import { UploadFilesController } from './controllers/upload-files.controller';
 
 // services
-import { UploadFilesService } from './services/upload-files.service';
 
 // models
 import { FileUploadModel } from './models/file-upload.schema';
@@ -15,6 +17,7 @@ import { ModelName } from '../types';
 
 @Module({
   imports: [
+    CloudinaryModule,
     MongooseModule.forFeature([
       {
         name: ModelName.FILE_UPLOAD,
@@ -23,6 +26,6 @@ import { ModelName } from '../types';
     ]),
   ],
   controllers: [UploadFilesController],
-  providers: [UploadFilesService],
+  providers: [],
 })
 export class UploadFilesModule {}
