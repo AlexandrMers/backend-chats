@@ -3,11 +3,13 @@ import { Injectable } from '@nestjs/common';
 import { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 
+// helpers
+import { formatFileFromDB } from './helpers';
+
 // types
 import { UserResponseInterface } from '../../../users/types';
 import { FileInterface, FileUploadDocument } from '../../types';
 import { ModelName, Statuses } from '../../../types';
-import { formatFileFromDB } from './helpers';
 
 @Injectable()
 export class CloudinaryService {
