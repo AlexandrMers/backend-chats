@@ -33,7 +33,7 @@ export class MessagesService {
     return await this.MessageModel.find({
       chat: chatId,
     })
-      .populate(['author'])
+      .populate('author attachments')
       .then((messagesData) =>
         messagesData.length > 0 ? messagesData.map(formatMessageResponse) : [],
       );
