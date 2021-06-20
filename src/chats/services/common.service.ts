@@ -11,10 +11,13 @@ import { ModelName } from '../../types';
 
 import { formatChatResponse } from '../helpers/formatChatResponse';
 import { formatMessageResponse } from '../helpers/formatMessageResponse';
+import { FileUploadDocument } from '../../upload-files/types';
 
 @Injectable()
 export class CommonService {
   constructor(
+    @InjectModel(ModelName.FILE_UPLOAD)
+    private readonly FileUploadModel: Model<FileUploadDocument>,
     @InjectModel(ModelName.MESSAGE)
     private readonly MessageModel: Model<MessageDocument>,
     @InjectModel(ModelName.CHAT)
@@ -27,20 +30,23 @@ export class CommonService {
     authorId,
     chatId,
     text,
+    attachments = [],
   }: {
     authorId: UserDocument['_id'];
     chatId: ChatDocument['_id'];
     text: MessageDocument['text'];
     type: MessageType;
+    attachments?: FileUploadDocument['_id'][];
   }) {
     const createdMessage = await new this.MessageModel({
       type,
       text,
       author: Types.ObjectId(authorId),
       chat: Types.ObjectId(chatId),
+      attachments,
     })
       .save()
-      .then((data) => data.populate('author').execPopulate());
+      .then((data) => data.populate('attachments author').execPopulate());
 
     await this.updateLastMessageChat(chatId, createdMessage._id);
 
@@ -50,6 +56,21 @@ export class CommonService {
     this.socketService.server
       .in(chatId)
       .emit(ChatEvent.NEW_MESSAGE, newMessage);
+
+    await this.FileUploadModel.updateMany(
+      {
+        _id: {
+          $in: attachments,
+        },
+      },
+      {
+        $set: {
+          message: Types.ObjectId(newMessage.id),
+          chat: Types.ObjectId(chatId),
+        },
+      },
+    );
+
     return newMessage;
   }
 

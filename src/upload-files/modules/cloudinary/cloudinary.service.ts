@@ -1,6 +1,6 @@
 import { v2 as cloudinary } from 'cloudinary';
 import { Injectable } from '@nestjs/common';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 
 // types
@@ -23,11 +23,18 @@ export class CloudinaryService {
           {
             resource_type: 'auto',
           },
-          async (error, result) => {
+          (error, result) => {
             if (error) {
-              reject({
+              return reject({
                 status: Statuses.ERROR,
                 error: error,
+              });
+            }
+
+            if (!result) {
+              return reject({
+                status: Statuses.ERROR,
+                error: 'Результат с cloudinary не был получен',
               });
             }
 
@@ -37,17 +44,22 @@ export class CloudinaryService {
               size: result.bytes,
               extension: result.format,
               url: result.url,
-              user: user.id,
+              user: Types.ObjectId(user.id),
             };
 
             const newFile = new this.fileUploadModel(fileData);
-            const savedNewFile = await newFile.save();
-            const formattedNewFile = formatFileFromDB(savedNewFile);
 
-            resolve({
-              status: Statuses.SUCCESS,
-              data: formattedNewFile,
-            });
+            newFile
+              .save()
+              .then((savedFile) => {
+                resolve({
+                  status: Statuses.SUCCESS,
+                  data: formatFileFromDB(savedFile),
+                });
+              })
+              .catch((error) => {
+                reject(error);
+              });
           },
         )
         .end(file.buffer);

@@ -1,9 +1,17 @@
 import { MessageDocument, MessageResponseInterface } from '../types';
 
+import { formatFileFromDB } from '../../upload-files/modules/cloudinary/helpers';
+
 export const formatMessageResponse = (
   message: MessageDocument,
 ): MessageResponseInterface => {
   const messageJson = message?.toJSON();
+
+  const attachmentsFormatted = messageJson?.attachments?.length
+    ? messageJson?.attachments.map((attachment) =>
+        formatFileFromDB(attachment, false),
+      )
+    : [];
 
   return {
     id: messageJson?._id,
@@ -16,5 +24,6 @@ export const formatMessageResponse = (
       fullName: messageJson?.author.fullName,
       id: messageJson?.author._id,
     },
+    attachments: attachmentsFormatted,
   };
 };

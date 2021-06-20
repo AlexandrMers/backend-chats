@@ -3,7 +3,7 @@ import { SchemaTypes } from 'mongoose';
 
 // Types
 import { ModelName } from '../../types';
-import { MessageDocument } from '../../chats/types';
+import { ChatDocument, MessageDocument } from '../../chats/types';
 import { UserDocument } from '../../users/types';
 
 @Schema({
@@ -40,6 +40,12 @@ export class FileUpload {
     ref: ModelName.MESSAGE,
   })
   message: MessageDocument['_id'];
+
+  @Prop({
+    type: SchemaTypes.ObjectId,
+    ref: ModelName.CHAT,
+  })
+  chat: ChatDocument['_id'];
 
   @Prop({
     type: SchemaTypes.ObjectId,

@@ -12,10 +12,14 @@ import { MessagesController } from './controllers/messages.controller';
 
 import { ModelName } from '../types';
 import { SocketModule } from '../socket/socket.module';
+import { FileUploadModel } from '../upload-files/models/file-upload.schema';
 
 @Module({
   imports: [
     UsersModule,
+    MongooseModule.forFeature([
+      { name: ModelName.FILE_UPLOAD, schema: FileUploadModel },
+    ]),
     MongooseModule.forFeature([{ name: ModelName.CHAT, schema: ChatModel }]),
     MongooseModule.forFeature([
       { name: ModelName.MESSAGE, schema: MessageModel },

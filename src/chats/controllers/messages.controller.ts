@@ -24,8 +24,6 @@ import { MessageType } from '../types';
 
 import { CreateMessageDto } from '../dto/create-message.dto';
 import { SocketService } from '../../socket/socket.service';
-import { ChatEvent } from '../../socket/types';
-import { chain } from 'ramda';
 
 @UseInterceptors(UpdateLastSeenInterceptor)
 @Controller('messages')
@@ -76,6 +74,7 @@ export class MessagesController {
         chatId: createMessageDto.chatId,
         text: createMessageDto.text,
         type: MessageType.USER,
+        attachments: createMessageDto.attachments,
       });
 
       this.socketService.createChatMessage(createMessageDto.chatId, newMessage);

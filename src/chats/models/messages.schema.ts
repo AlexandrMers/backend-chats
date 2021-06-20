@@ -3,7 +3,7 @@ import { SchemaTypes } from 'mongoose';
 
 import { ModelName } from '../../types';
 import { UserDocument } from '../../users/types';
-
+import { FileUploadDocument } from '../../upload-files/types';
 import { ChatDocument, MessageType } from '../types';
 
 @Schema({
@@ -47,6 +47,15 @@ export class Message {
     type: SchemaTypes.Date,
   })
   createdAt: Date;
+
+  @Prop([
+    {
+      type: SchemaTypes.ObjectId,
+      ref: ModelName.FILE_UPLOAD,
+      required: false,
+    },
+  ])
+  attachments: FileUploadDocument['_id'][];
 }
 
 export const MessageModel = SchemaFactory.createForClass(Message);

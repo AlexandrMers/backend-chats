@@ -2,6 +2,7 @@ import { Document } from 'mongoose';
 import { Chat } from './models/chat.schema';
 import { Message } from './models/messages.schema';
 import { UserDocument } from '../users/types';
+import { FileInterface, FileUploadDocument } from '../upload-files/types';
 
 export type ChatDocument = Chat & Document;
 
@@ -32,4 +33,5 @@ export interface MessageResponseInterface {
   text: MessageDocument['text'];
   createdAt: MessageDocument['createdAt'];
   author: ShortUserInterface;
+  attachments: FileInterface[];
 }
