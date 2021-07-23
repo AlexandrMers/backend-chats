@@ -35,3 +35,10 @@ export interface MessageResponseInterface {
   author: ShortUserInterface;
   attachments: FileInterface[];
 }
+
+export interface ParamsForFindMessagesInterface {
+  chatId: MessageDocument['_id'];
+  currentUserId: string;
+  limit: string;
+  page: string;
+}

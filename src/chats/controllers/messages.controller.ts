@@ -4,6 +4,7 @@ import {
   Get,
   HttpStatus,
   Put,
+  Query,
   Req,
   Res,
   UseGuards,
@@ -24,6 +25,7 @@ import { MessageType } from '../types';
 
 import { CreateMessageDto } from '../dto/create-message.dto';
 import { SocketService } from '../../socket/socket.service';
+import { ParamsForFindMessagesDto } from '../dto/params-for-find-messages.dto';
 
 @UseInterceptors(UpdateLastSeenInterceptor)
 @Controller('messages')
@@ -37,19 +39,20 @@ export class MessagesController {
   @UseGuards(JwtAuthGuard)
   @Get()
   async getMessages(
+    @Query() paramsForFindMessages: ParamsForFindMessagesDto,
     @Req() req: { user: UserResponseInterface } & Request,
     @Res() res: Response,
   ) {
     try {
-      const messages = await this.messagesService.getMessages(
-        req.query.chatId,
-        req.user.id,
-      );
+      const messages = await this.messagesService.getMessages({
+        currentUserId: req.user.id,
+        ...paramsForFindMessages,
+      });
 
       res.status(HttpStatus.OK).json({
         status: Statuses.SUCCESS,
         data: {
-          chatId: req.query.chatId,
+          chatId: paramsForFindMessages.chatId,
           messages,
         },
       });
