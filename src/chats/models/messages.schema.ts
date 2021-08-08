@@ -19,7 +19,6 @@ export class Message {
 
   @Prop({
     type: String,
-    required: true,
   })
   text: string;
 
