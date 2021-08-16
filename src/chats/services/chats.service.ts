@@ -7,8 +7,19 @@ import { CommonService } from './common.service';
 import { formatChatResponse } from '../helpers/formatChatResponse';
 
 import { UserDocument, UserResponseInterface } from '../../users/types';
-import { ChatDocument, ChatResponseInterface, MessageType } from '../types';
+import {
+  ChatDocument,
+  ChatResponseInterface,
+  MessageResponseInterface,
+  MessageType,
+} from '../types';
 import { ModelName } from '../../types';
+import { MessagesService } from './messages.service';
+import {
+  calculateUnreadMessages,
+  formatChatsWithUnreadCountMessages,
+  getUnreadMessages,
+} from './helpers';
 
 @Injectable()
 export class ChatsService {
@@ -16,6 +27,7 @@ export class ChatsService {
     @InjectModel(ModelName.CHAT)
     private readonly ChatModel: Model<ChatDocument>,
     private commonService: CommonService,
+    private messagesService: MessagesService,
   ) {}
 
   validateChat = async (
@@ -78,9 +90,9 @@ export class ChatsService {
 
   getChatsByParticipant = async (
     authorId: UserDocument['_id'],
-  ): Promise<ChatResponseInterface[]> => {
+  ): Promise<(ChatResponseInterface & { unreadCountMessages: number })[]> => {
     try {
-      return this.ChatModel.find({
+      const chats = await this.ChatModel.find({
         $or: [{ author: authorId }, { partner: authorId }],
       })
         .populate({
@@ -93,6 +105,27 @@ export class ChatsService {
         .then((chatsData) =>
           chatsData.length ? chatsData.map(formatChatResponse) : [],
         );
+
+      const queuePromisesChats = chats.map(async (chat) => {
+        const messages = await this.messagesService.getMessages({
+          chatId: chat.id,
+          currentUserId: authorId,
+          limit: '300',
+          page: '1',
+        });
+
+        return {
+          ...chat,
+          messages: messages,
+        };
+      });
+
+      const unreadCountMessages = await getUnreadMessages(
+        queuePromisesChats,
+        authorId,
+      );
+
+      return formatChatsWithUnreadCountMessages(chats, unreadCountMessages);
     } catch (error) {
       throw Error(error);
     }

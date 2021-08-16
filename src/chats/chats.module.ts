@@ -20,6 +20,8 @@ import { UsersModule } from '../users/users.module';
 // types
 import { ModelName } from '../types';
 
+import { MessagesService } from './services/messages.service';
+
 @Module({
   imports: [
     UsersModule,
@@ -32,7 +34,7 @@ import { ModelName } from '../types';
     ]),
     SocketModule,
   ],
-  providers: [ChatsService, CommonService],
+  providers: [ChatsService, CommonService, MessagesService],
   controllers: [ChatsController],
   exports: [ChatsService],
 })
