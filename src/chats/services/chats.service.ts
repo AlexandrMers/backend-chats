@@ -125,10 +125,6 @@ export class ChatsService {
         authorId,
       );
 
-      console.log('authorId -> ', authorId);
-
-      // console.log('unreadCountMessages -> ', unreadCountMessages);
-
       return formatChatsWithUnreadCountMessages(chats, unreadCountMessages);
     } catch (error) {
       throw Error(error);
