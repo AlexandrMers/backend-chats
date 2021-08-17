@@ -5,10 +5,13 @@ export const calculateUnreadMessages = (
   authorId: string,
 ) => {
   return messages.reduce((count, message) => {
-    const isUnreadMessage = !message.isRead;
-    const isPartnerMessage = message.author.id !== authorId;
+    const isReadMessage = message.isRead;
+    const isPartnerMessage = message.author.id.toString() !== authorId;
 
-    return isUnreadMessage && isPartnerMessage ? count + 1 : count;
+    if (!isReadMessage && isPartnerMessage) {
+      return ++count;
+    }
+    return count;
   }, 0);
 };
 

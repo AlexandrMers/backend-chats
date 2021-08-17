@@ -110,7 +110,7 @@ export class ChatsService {
         const messages = await this.messagesService.getMessages({
           chatId: chat.id,
           currentUserId: authorId,
-          limit: '300',
+          limit: '500',
           page: '1',
         });
 
@@ -124,6 +124,10 @@ export class ChatsService {
         queuePromisesChats,
         authorId,
       );
+
+      console.log('authorId -> ', authorId);
+
+      // console.log('unreadCountMessages -> ', unreadCountMessages);
 
       return formatChatsWithUnreadCountMessages(chats, unreadCountMessages);
     } catch (error) {
