@@ -14,7 +14,6 @@ import {
   formatChatsWithUnreadCountMessages,
   getUnreadMessages,
 } from './helpers';
-import { clearCaches } from '@typescript-eslint/parser';
 
 @Injectable()
 export class ChatsService {
