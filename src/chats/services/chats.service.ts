@@ -7,19 +7,14 @@ import { CommonService } from './common.service';
 import { formatChatResponse } from '../helpers/formatChatResponse';
 
 import { UserDocument, UserResponseInterface } from '../../users/types';
-import {
-  ChatDocument,
-  ChatResponseInterface,
-  MessageResponseInterface,
-  MessageType,
-} from '../types';
+import { ChatDocument, ChatResponseInterface, MessageType } from '../types';
 import { ModelName } from '../../types';
 import { MessagesService } from './messages.service';
 import {
-  calculateUnreadMessages,
   formatChatsWithUnreadCountMessages,
   getUnreadMessages,
 } from './helpers';
+import { clearCaches } from '@typescript-eslint/parser';
 
 @Injectable()
 export class ChatsService {

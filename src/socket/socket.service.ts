@@ -70,12 +70,16 @@ export class SocketService {
     }
   }
 
+  notifySockets = (callback: (socket: SocketClientWithUserInfo) => void) => {
+    this.sockets.forEach(callback);
+  };
+
   setUserIsOnline(
     userData: UserResponseInterface,
     chats: ChatResponseInterface[],
     isOnline: boolean,
   ) {
-    this.sockets.forEach((socket) => {
+    this.notifySockets((socket) => {
       chats.forEach((chat) => {
         socket
           .to(chat.id)
@@ -85,5 +89,10 @@ export class SocketService {
           );
       });
     });
+  }
+
+  readMessagesUpdate(chatId: string, userId: string) {
+    const socketByUserId = this.getSocketByUserId(userId);
+    socketByUserId.to(chatId).emit(ChatEvent.READ_MESSAGE);
   }
 }

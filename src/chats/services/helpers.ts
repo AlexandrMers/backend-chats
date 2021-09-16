@@ -1,7 +1,7 @@
 import { ChatResponseInterface, MessageResponseInterface } from '../types';
 
 export const calculateUnreadMessages = (
-  messages: MessageResponseInterface[],
+  messages: MessageResponseInterface[] = [],
   authorId: string,
 ) => {
   return messages.reduce((count, message) => {
@@ -27,7 +27,7 @@ export async function getUnreadMessages(
         messages: MessageResponseInterface[];
       })[],
     ) => {
-      return calculateUnreadMessages(chats[0].messages, authorId);
+      return calculateUnreadMessages(chats[0]?.messages, authorId);
     },
   );
 }

@@ -28,6 +28,6 @@ import { FileUploadModel } from '../upload-files/models/file-upload.schema';
   ],
   providers: [CommonService, MessagesService],
   controllers: [MessagesController],
-  exports: [],
+  exports: [MessagesService],
 })
 export class MessagesModule {}

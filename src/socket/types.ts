@@ -8,6 +8,7 @@ export enum ChatEvent {
   CONNECT_USER = 'CONNECT_USER',
   USER_ONLINE = 'USER_ONLINE',
   USER_OFFLINE = 'USER_OFFLINE',
+  READ_MESSAGE = 'READ_MESSAGE',
 }
 
 export type TypedSocket<T> = Socket & T;

@@ -14,6 +14,7 @@ import { UsersService } from './users/services/users.service';
 
 import { ChatEvent, SocketClientWithUserInfo } from './socket/types';
 import { AuthorizedUserInterface } from './users/types';
+import { MessagesService } from './chats/services/messages.service';
 
 @WebSocketGateway(8080)
 export class AppGateway
@@ -24,6 +25,7 @@ export class AppGateway
   constructor(
     private readonly socketService: SocketService,
     private readonly chatsService: ChatsService,
+    private readonly messagesService: MessagesService,
     private readonly usersService: UsersService,
   ) {}
 
@@ -62,5 +64,21 @@ export class AppGateway
 
     this.socketService.addSocket(client);
     this.socketService.setUserIsOnline(userData, chats, true);
+  }
+
+  @SubscribeMessage(ChatEvent.READ_MESSAGE)
+  async readMessage(
+    client: SocketClientWithUserInfo,
+    data: { chatId: string; userId: string },
+  ) {
+    try {
+      const updatedMessages = await this.messagesService.updateManyMessages(
+        data.chatId,
+        data.userId,
+      );
+      // this.socketService.readMessagesUpdate(data.chatId, data.userId);
+    } catch (e) {
+      throw Error(e);
+    }
   }
 }

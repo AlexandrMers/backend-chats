@@ -109,4 +109,31 @@ export class CommonService {
       $or: [{ author: userId }, { partner: userId }],
     });
   }
+
+  async updateManyMessagesByChatId(
+    chatId: ChatDocument['id'],
+    userId: UserDocument['_id'],
+  ) {
+    return new Promise((resolve, reject) => {
+      this.MessageModel.updateMany(
+        {
+          chat: chatId,
+          user: userId,
+        },
+        {
+          $set: { isRead: true },
+        },
+        {
+          multi: true,
+        },
+        (error, res) => {
+          if (error) {
+            return reject(error);
+          }
+
+          resolve(res);
+        },
+      );
+    });
+  }
 }

@@ -26,7 +26,7 @@ export class Message {
     type: Boolean,
     default: false,
   })
-  isRead: string;
+  isRead: boolean;
 
   @Prop({
     type: SchemaTypes.ObjectId,
