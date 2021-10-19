@@ -7,7 +7,6 @@ import {
   MessageResponseInterface,
 } from '../chats/types';
 import { UserResponseInterface } from '../users/types';
-import { use } from 'passport';
 
 @Injectable()
 export class SocketService {
