@@ -89,6 +89,6 @@ export class SocketService {
 
   readMessagesUpdate(chatId: string, userId: string) {
     const socketByUserId = this.getSocketByUserId(userId);
-    socketByUserId?.emit(ChatEvent.READ_MESSAGE);
+    socketByUserId?.emit(ChatEvent.READ_MESSAGE, { userId, chatId });
   }
 }

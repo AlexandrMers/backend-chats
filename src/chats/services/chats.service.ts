@@ -114,12 +114,12 @@ export class ChatsService {
         };
       });
 
-      const unreadCountMessages = await getUnreadMessages(
+      const unreadCountsMessages = await getUnreadMessages(
         queuePromisesChats,
         authorId,
       );
 
-      return formatChatsWithUnreadCountMessages(chats, unreadCountMessages);
+      return formatChatsWithUnreadCountMessages(chats, unreadCountsMessages);
     } catch (error) {
       throw Error(error);
     }

@@ -5,10 +5,10 @@ export const calculateUnreadMessages = (
   authorId: string,
 ) => {
   return messages.reduce((count, message) => {
-    const isReadMessage = message.isRead;
-    const isPartnerMessage = message.author.id.toString() !== authorId;
+    const isUnreadMessage = !message.isRead;
+    const isPartnerMessage = message.author.id !== authorId;
 
-    if (!isReadMessage && isPartnerMessage) {
+    if (isUnreadMessage && isPartnerMessage) {
       return ++count;
     }
     return count;
@@ -27,19 +27,22 @@ export async function getUnreadMessages(
         messages: MessageResponseInterface[];
       })[],
     ) => {
-      return calculateUnreadMessages(chats[0]?.messages, authorId);
+      return chats.reduce((obj, chat) => {
+        obj[chat.id] = calculateUnreadMessages(chat?.messages, authorId);
+        return obj;
+      }, {});
     },
   );
 }
 
 export function formatChatsWithUnreadCountMessages(
   chats: ChatResponseInterface[],
-  unreadCountMessages: number,
+  unreadCountMessages: { [key: string]: number },
 ) {
   return chats.map((chat) => {
     return {
       ...chat,
-      unreadCountMessages,
+      unreadCountMessages: unreadCountMessages[chat.id],
     };
   });
 }
