@@ -118,7 +118,7 @@ export class CommonService {
       this.MessageModel.updateMany(
         {
           chat: chatId,
-          user: userId,
+          author: userId,
         },
         {
           $set: { isRead: true },

@@ -69,14 +69,11 @@ export class AppGateway
   @SubscribeMessage(ChatEvent.READ_MESSAGE)
   async readMessage(
     client: SocketClientWithUserInfo,
-    data: { chatId: string; userId: string },
+    { userId, chatId }: { chatId: string; userId: string },
   ) {
     try {
-      const updatedMessages = await this.messagesService.updateManyMessages(
-        data.chatId,
-        data.userId,
-      );
-      // this.socketService.readMessagesUpdate(data.chatId, data.userId);
+      await this.messagesService.updateManyMessages(chatId, userId);
+      this.socketService.readMessagesUpdate(chatId, userId);
     } catch (e) {
       throw Error(e);
     }

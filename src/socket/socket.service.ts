@@ -7,15 +7,12 @@ import {
   MessageResponseInterface,
 } from '../chats/types';
 import { UserResponseInterface } from '../users/types';
+import { use } from 'passport';
 
 @Injectable()
 export class SocketService {
   public server: Server = null;
   private sockets: SocketClientWithUserInfo[] = [];
-
-  getAllSockets() {
-    return this.sockets;
-  }
 
   addSocket(socket: SocketClientWithUserInfo) {
     this.sockets = [...this.sockets, socket];
@@ -93,6 +90,6 @@ export class SocketService {
 
   readMessagesUpdate(chatId: string, userId: string) {
     const socketByUserId = this.getSocketByUserId(userId);
-    socketByUserId.to(chatId).emit(ChatEvent.READ_MESSAGE);
+    socketByUserId?.emit(ChatEvent.READ_MESSAGE);
   }
 }
