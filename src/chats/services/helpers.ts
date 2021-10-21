@@ -4,11 +4,14 @@ export const calculateUnreadMessages = (
   messages: MessageResponseInterface[] = [],
   authorId: string,
 ) => {
-  return messages.reduce((count, message) => {
-    const isUnreadMessage = !message.isRead;
-    const isPartnerMessage = message.author.id !== authorId;
+  const filteredMessages = messages.filter((msg) => {
+    return msg.author.id.toString() !== authorId;
+  });
 
-    if (isUnreadMessage && isPartnerMessage) {
+  return filteredMessages.reduce((count, message) => {
+    const isUnreadMessage = !message.isRead;
+
+    if (isUnreadMessage) {
       return ++count;
     }
     return count;
