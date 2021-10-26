@@ -24,6 +24,23 @@ export class UploadFilesController {
   constructor(private readonly cloudinaryService: CloudinaryService) {}
 
   @UseGuards(JwtAuthGuard)
+  @Post('upload/avatar')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadFileAvatar(
+    @UploadedFile() file: Express.Multer.File,
+    @Request() req: AuthorizedRequestInterface,
+  ) {
+    try {
+      return this.cloudinaryService.uploadFileForAvatar(file, req.user);
+    } catch (error) {
+      return {
+        status: Statuses.ERROR,
+        error: error.toString(),
+      };
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(

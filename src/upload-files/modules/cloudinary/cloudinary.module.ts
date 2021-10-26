@@ -7,6 +7,7 @@ import { CloudinaryProvider } from './cloudinary.provider';
 
 // models
 import { FileUploadModel } from '../../models/file-upload.schema';
+import { UserModel } from '../../../users/models/user-model.schema';
 
 // types
 import { ModelName } from '../../../types';
@@ -17,6 +18,12 @@ import { ModelName } from '../../../types';
       {
         name: ModelName.FILE_UPLOAD,
         schema: FileUploadModel,
+      },
+    ]),
+    MongooseModule.forFeature([
+      {
+        name: ModelName.USER,
+        schema: UserModel,
       },
     ]),
   ],

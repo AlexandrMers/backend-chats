@@ -7,18 +7,55 @@ import { InjectModel } from '@nestjs/mongoose';
 import { formatFileFromDB } from './helpers';
 
 // types
-import { UserResponseInterface } from '../../../users/types';
+import { UserDocument, UserResponseInterface } from '../../../users/types';
 import { FileInterface, FileUploadDocument } from '../../types';
 import { ModelName, Statuses } from '../../../types';
+import { UsersService } from '../../../users/services/users.service';
 
 @Injectable()
 export class CloudinaryService {
   constructor(
     @InjectModel(ModelName.FILE_UPLOAD)
     private readonly fileUploadModel: Model<FileUploadDocument>,
+    @InjectModel(ModelName.USER)
+    private readonly userModel: Model<UserDocument>,
   ) {}
 
-  async uploadFile(file: Express.Multer.File, user: UserResponseInterface) {
+  async uploadFileForAvatar(
+    file: Express.Multer.File,
+    user: UserResponseInterface,
+  ) {
+    try {
+      const uploadedFile = await this.uploadFile(file, user);
+
+      if (!uploadedFile) {
+        throw new Error('Файл не загрузился!');
+      }
+
+      const updateUser = await this.userModel.findOneAndUpdate(
+        { _id: user.id },
+        {
+          avatar: uploadedFile?.data?.url,
+        },
+        { new: true },
+        () => {},
+      );
+
+      const formattedUser = UsersService.formatUser(updateUser);
+
+      return {
+        status: Statuses.SUCCESS,
+        data: formattedUser,
+      };
+    } catch (e) {
+      throw new Error(e);
+    }
+  }
+
+  async uploadFile(
+    file: Express.Multer.File,
+    user: UserResponseInterface,
+  ): Promise<{ status: string; data: FileInterface }> {
     return new Promise((resolve, reject) => {
       cloudinary.uploader
         .upload_stream(
