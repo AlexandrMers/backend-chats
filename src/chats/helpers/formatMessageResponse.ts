@@ -23,6 +23,7 @@ export const formatMessageResponse = (
     author: {
       fullName: messageJson?.author.fullName,
       id: messageJson?.author._id,
+      avatar: messageJson?.author.avatar,
     },
     attachments: attachmentsFormatted,
   };

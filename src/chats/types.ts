@@ -16,6 +16,7 @@ export type MessageDocument = Message & Document;
 export interface ShortUserInterface {
   fullName: UserDocument['fullName'];
   id: UserDocument['_id'];
+  avatar: UserDocument['avatar'];
 }
 
 export interface ChatResponseInterface {
