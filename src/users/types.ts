@@ -9,6 +9,8 @@ export interface UserResponseInterface {
   lastSeen: UserDocument['last_seen'];
   fullName: UserDocument['fullName'];
   email: UserDocument['email'];
+  avatar: UserDocument['avatar'];
+  isOnline: UserDocument['is_online'];
   password?: UserDocument['password'];
 }
 

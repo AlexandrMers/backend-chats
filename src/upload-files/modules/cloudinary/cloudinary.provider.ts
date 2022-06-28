@@ -5,7 +5,7 @@ const CLOUDINARY = 'cloudinary';
 
 export const CloudinaryProvider = {
   provide: CLOUDINARY,
-  useFactory: (): void => {
+  useFactory: () => {
     return v2.config(getCloudinaryConfig());
   },
 };

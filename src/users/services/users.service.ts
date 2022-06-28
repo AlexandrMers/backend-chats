@@ -35,6 +35,8 @@ export class UsersService {
     return compose(
       ifElse(
         () => visiblePassword,
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         assoc('password', userDocJson.password),
         identity,
       ),
@@ -48,7 +50,7 @@ export class UsersService {
         isOnline: userDocJson.is_online,
         avatar: userDocJson.avatar,
       }),
-    )();
+    )() as UserResponseInterface;
   }
 
   static validateEqualPasswords = ({

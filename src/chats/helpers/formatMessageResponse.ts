@@ -9,6 +9,8 @@ export const formatMessageResponse = (
 
   const attachmentsFormatted = messageJson?.attachments?.length
     ? messageJson?.attachments.map((attachment) =>
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         formatFileFromDB(attachment, false),
       )
     : [];
